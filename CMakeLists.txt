@@ -8,6 +8,7 @@ project(rosee_gazebo_plugins)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+    roscpp
     gazebo_ros
 )
 
@@ -119,11 +120,18 @@ include_directories( include
     ${GAZEBO_INCLUDE_DIRS} 
     ${SDFormat_INCLUDE_DIRS}
 )
+link_directories(${GAZEBO_LIBRARY_DIRS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
+
+
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/rosee_gazebo_plugins.cpp
 # )
+add_library(test_ee_plugin SHARED
+ 						src/test_ee_plugin.cpp
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -149,6 +157,10 @@ include_directories( include
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+target_link_libraries(test_ee_plugin 
+	${GAZEBO_LIBRARIES}
+	${catkin_INCLUDE_DIRS}
+)
 
 #############
 ## Install ##

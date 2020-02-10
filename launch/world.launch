@@ -10,19 +10,21 @@
     <arg name="verbose" value="false"/>
   </include>
 
-  <param name="robot_description" textfile="$(find ros_end_effector)/configs/urdf/test_ee_gazebo.urdf"/>
+  <param name="robot_description" textfile="$(find rosee_gazebo_plugins)/configs/urdf/test_ee_gazebo.urdf"/>
   <param name="robot_description_semantic" textfile="$(find ros_end_effector)/configs/srdf/test_ee.srdf" />
 
 <!-- Spawn a robot into Gazebo -->
-	 <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find ros_end_effector)/configs/urdf/test_ee_gazebo.urdf -urdf -z 1 -model test_ee" /> 
+	 <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find rosee_gazebo_plugins)/configs/urdf/test_ee_gazebo.urdf -urdf -z 1 -model test_ee" /> 
 
 
   <!-- Load joint controller configurations from YAML file to parameter server -->
-  <rosparam file="$(find rosee_gazebo_plugins)/config/test_ee_control.yaml" command="load" />
+  <rosparam file="$(find rosee_gazebo_plugins)/configs/test_ee_control.yaml" command="load" />
 
   <!-- load the controllers -->
   <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" ns="/test_ee" args="joint_state_controller left_finger_to_left_fingertip_position_controller "/>
+    output="screen" ns="/test_ee" args="joint_state_controller 
+    base_to_left_finger_position_controller left_finger_to_left_fingertip_position_controller base_to_right_finger1_position_controller
+    base_to_right_finger2_position_controller right_finger1_to_right_fingertip1_position_controller right_finger2_to_right_fingertip2_position_controller "/>
 
   <!-- convert joint states to TF transforms for rviz, etc -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
