@@ -10,6 +10,8 @@ project(rosee_gazebo_plugins)
 find_package(catkin REQUIRED COMPONENTS
     roscpp
     gazebo_ros
+    std_msgs
+    dynamic_reconfigure
 )
 
 ## System dependencies are found with CMake's conventions
@@ -88,10 +90,10 @@ find_package(ros_end_effector REQUIRED)
 ##     and list every .cfg file to be processed
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
+generate_dynamic_reconfigure_options(
+   cfg/pid.cfg
+)
+include_directories(${dynamic_reconfigure_PACKAGE_PATH}/cmake/cfgbuild.cmake) 
 
 ###################################
 ## catkin specific configuration ##
@@ -119,6 +121,8 @@ include_directories( include
     ${catkin_INCLUDE_DIRS}
     ${GAZEBO_INCLUDE_DIRS} 
     ${SDFormat_INCLUDE_DIRS}
+    ${roscpp_INCLUDE_DIRS}
+    ${std_msgs_INCLUDE_DIRS}
 )
 link_directories(${GAZEBO_LIBRARY_DIRS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
@@ -129,15 +133,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/rosee_gazebo_plugins.cpp
 # )
-add_library(test_ee_plugin SHARED
- 						src/test_ee_plugin.cpp
+add_library(rosee_plugin SHARED
+        src/rosee_plugin.cpp
 )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
+add_dependencies(rosee_plugin ${PROJECT_NAME}_gencfg)
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
@@ -157,9 +161,12 @@ add_library(test_ee_plugin SHARED
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(test_ee_plugin 
-	${GAZEBO_LIBRARIES}
-	${catkin_INCLUDE_DIRS}
+target_link_libraries(rosee_plugin
+    ${GAZEBO_LIBRARIES}
+    ${catkin_INCLUDE_DIRS}
+    ${catkin_LIBRARIES}
+    ${roscpp_LIBRARIES}
+    yaml-cpp
 )
 
 #############

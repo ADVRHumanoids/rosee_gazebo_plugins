@@ -1,0 +1,22 @@
+# YAML config file for rosee_plugin control for gazebo. Similar syntax to
+# the one used by "official" ros plugin http://gazebosim.org/tutorials/?tut=ros_control
+
+two_finger: #robot name
+	
+	#Controller for each joint. type now is only JointPositionControllerf
+  base_to_left_finger_controller:
+    type: JointPositionController
+    joint: base_to_left_finger
+    pid: {p: 10.0, i: 0.1, d: 0.5}
+  base_to_right_finger_controller:
+    type: JointPositionController
+    joint: base_to_right_finger
+    pid: {p: 10.0, i: 0.1, d: 0.5}
+  left_finger_to_left_fingertip_controller:
+    type: JointVelocityController
+    joint: left_finger_to_left_fingertip
+    pid: {p: 10.0, i: 0.1, d: 0.5}
+  right_finger_to_right_fingertip_controller:
+    type: JointPositionController
+    joint: right_finger_to_right_fingertip
+    pid: {p: 10.0, i: 0.1, d: 0.5}
