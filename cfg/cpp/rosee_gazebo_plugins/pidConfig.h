@@ -236,15 +236,15 @@ class DEFAULT
         boost::any val;
         (*_i)->getValue(config, val);
 
-        if("message"==(*_i)->name){message = boost::any_cast<std::string>(val);}
-        if("a"==(*_i)->name){a = boost::any_cast<int>(val);}
-        if("b"==(*_i)->name){b = boost::any_cast<int>(val);}
+        if("p"==(*_i)->name){p = boost::any_cast<double>(val);}
+        if("i"==(*_i)->name){i = boost::any_cast<double>(val);}
+        if("d"==(*_i)->name){d = boost::any_cast<double>(val);}
       }
     }
 
-    std::string message;
-int a;
-int b;
+    double p;
+double i;
+double d;
 
     bool state;
     std::string name;
@@ -255,11 +255,11 @@ int b;
 
 
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      std::string message;
+      double p;
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      int a;
+      double i;
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      int b;
+      double d;
 //#line 228 "/opt/ros/kinetic/share/dynamic_reconfigure/templates/ConfigType.h.template"
 
     bool __fromMessage__(dynamic_reconfigure::Config &msg)
@@ -399,35 +399,35 @@ int b;
     {
 pidConfig::GroupDescription<pidConfig::DEFAULT, pidConfig> Default("Default", "", 0, 0, true, &pidConfig::groups);
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      __min__.message = "";
+      __min__.p = -100.0;
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      __max__.message = "";
+      __max__.p = 100.0;
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      __default__.message = "hello";
+      __default__.p = 0.0;
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      Default.abstract_parameters.push_back(pidConfig::AbstractParamDescriptionConstPtr(new pidConfig::ParamDescription<std::string>("message", "str", 0, "The message.", "", &pidConfig::message)));
+      Default.abstract_parameters.push_back(pidConfig::AbstractParamDescriptionConstPtr(new pidConfig::ParamDescription<double>("p", "double", 0, "Proportional Gain.", "", &pidConfig::p)));
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      __param_descriptions__.push_back(pidConfig::AbstractParamDescriptionConstPtr(new pidConfig::ParamDescription<std::string>("message", "str", 0, "The message.", "", &pidConfig::message)));
+      __param_descriptions__.push_back(pidConfig::AbstractParamDescriptionConstPtr(new pidConfig::ParamDescription<double>("p", "double", 0, "Proportional Gain.", "", &pidConfig::p)));
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      __min__.a = -100;
+      __min__.i = -100.0;
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      __max__.a = 100;
+      __max__.i = 100.0;
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      __default__.a = 1;
+      __default__.i = 0.0;
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      Default.abstract_parameters.push_back(pidConfig::AbstractParamDescriptionConstPtr(new pidConfig::ParamDescription<int>("a", "int", 0, "First number.", "", &pidConfig::a)));
+      Default.abstract_parameters.push_back(pidConfig::AbstractParamDescriptionConstPtr(new pidConfig::ParamDescription<double>("i", "double", 0, "Integrative Gain.", "", &pidConfig::i)));
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      __param_descriptions__.push_back(pidConfig::AbstractParamDescriptionConstPtr(new pidConfig::ParamDescription<int>("a", "int", 0, "First number.", "", &pidConfig::a)));
+      __param_descriptions__.push_back(pidConfig::AbstractParamDescriptionConstPtr(new pidConfig::ParamDescription<double>("i", "double", 0, "Integrative Gain.", "", &pidConfig::i)));
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      __min__.b = -100;
+      __min__.d = -100.0;
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      __max__.b = 100;
+      __max__.d = 100.0;
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      __default__.b = 2;
+      __default__.d = 0.0;
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      Default.abstract_parameters.push_back(pidConfig::AbstractParamDescriptionConstPtr(new pidConfig::ParamDescription<int>("b", "int", 0, "First number.", "", &pidConfig::b)));
+      Default.abstract_parameters.push_back(pidConfig::AbstractParamDescriptionConstPtr(new pidConfig::ParamDescription<double>("d", "double", 0, "Derivative Gain.", "", &pidConfig::d)));
 //#line 274 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
-      __param_descriptions__.push_back(pidConfig::AbstractParamDescriptionConstPtr(new pidConfig::ParamDescription<int>("b", "int", 0, "First number.", "", &pidConfig::b)));
+      __param_descriptions__.push_back(pidConfig::AbstractParamDescriptionConstPtr(new pidConfig::ParamDescription<double>("d", "double", 0, "Derivative Gain.", "", &pidConfig::d)));
 //#line 246 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"
       Default.convertParams();
 //#line 246 "/opt/ros/kinetic/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator.py"

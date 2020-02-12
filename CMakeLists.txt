@@ -141,11 +141,13 @@ add_library(rosee_plugin SHARED
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(rosee_plugin ${PROJECT_NAME}_gencfg)
+add_executable(DynReconfigure  src/DynReconfigure.cpp)
+add_dependencies(DynReconfigure ${PROJECT_NAME}_gencfg)
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/rosee_gazebo_plugins_node.cpp)
+
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -163,7 +165,12 @@ add_dependencies(rosee_plugin ${PROJECT_NAME}_gencfg)
 # )
 target_link_libraries(rosee_plugin
     ${GAZEBO_LIBRARIES}
-    ${catkin_INCLUDE_DIRS}
+    ${catkin_LIBRARIES}
+    ${roscpp_LIBRARIES}
+    yaml-cpp
+)
+
+target_link_libraries(DynReconfigure
     ${catkin_LIBRARIES}
     ${roscpp_LIBRARIES}
     yaml-cpp

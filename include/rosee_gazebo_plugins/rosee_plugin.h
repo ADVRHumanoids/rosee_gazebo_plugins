@@ -9,11 +9,6 @@
 #include <ros/subscribe_options.h>
 #include <sensor_msgs/JointState.h>
 
-#include <dynamic_reconfigure/server.h>
-// Auto-generated from cfg/ directory.
-//TODO check why this is generated inside this folder and not in the build folder
-#include "../../cfg/cpp/rosee_gazebo_plugins/pidConfig.h"
-
 #include <gazebo/gazebo_client.hh>
 #include <gazebo/physics/physics.hh>
 
@@ -54,7 +49,7 @@ namespace gazebo
         void parseControllerConfig();
         void setPIDs();
         void setReference ( );
-        void pid_cfg_clbk ( rosee_gazebo_plugins::pidConfig &config, uint32_t level );
+        void updatePIDfromParam();
 
 
 
@@ -89,8 +84,6 @@ namespace gazebo
         } ;
         
         std::map <std::string, JointControllerConfig> jointControllersConfigsMap;
-    
-
         
         
   };

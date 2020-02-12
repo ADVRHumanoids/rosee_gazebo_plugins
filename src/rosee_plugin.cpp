@@ -27,12 +27,11 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     this->model = _model;
     //store all joints.. note that also fixed joints are stored
     joints = model->GetJoints();
-    
+
     parseControllerConfig();
 
-    //TODO take yaml file from param server like ros_control do
     setPIDs();
-    
+
 
 //     auto joint = _model->GetJoints()[1]; //bbase to left
 //     if ( jointControllersConfigsMap.at(joint->GetName()).type.compare ("JointPositionController") == 0) {
@@ -62,7 +61,7 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 //         this->model->GetJointController()->SetVelocityTarget( joint->GetScopedName(), -0.1); 
 //     }
     
-    
+
     // Initialize ros, if it has not already bee initialized.
     if (!ros::isInitialized())
     {
@@ -88,16 +87,10 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     //TODO relative scope?
     //TODO name of pub sub topics...
     rosPub = rosNode->advertise < sensor_msgs::JointState > ( "ros_end_effector/gazebo/joint_state", 1 ) ;
-    
-    
-    dynamic_reconfigure::Server<rosee_gazebo_plugins::pidConfig> dr_srv;
-    dynamic_reconfigure::Server<rosee_gazebo_plugins::pidConfig>::CallbackType cb;
-    cb = boost::bind(&RoseePlugin::pid_cfg_clbk, this, _1, _2);
-    dr_srv.setCallback(cb);
+
 
     // Spin up the queue helper thread.
-    this->rosQueueThread =
-    std::thread(std::bind(&RoseePlugin::QueueThread, this));
+    this->rosQueueThread = std::thread(std::bind(&RoseePlugin::QueueThread, this));
 }
 
 
@@ -124,7 +117,7 @@ void gazebo::RoseePlugin::parseControllerConfig() {
         JointControllerConfig jcf;
         jcf.name = controller.first.as<std::string>();
         jcf.type = controller.second["type"].as<std::string>();
-        jcf.jointName = controller.second["joint"].as<std::string>();
+        jcf.jointName = controller.second["joint_name"].as<std::string>();
         jcf.p = controller.second["pid"]["p"].as<double>();
         jcf.i = controller.second["pid"]["i"].as<double>();
         jcf.d = controller.second["pid"]["d"].as<double>();
@@ -137,7 +130,7 @@ void gazebo::RoseePlugin::parseControllerConfig() {
     } 
 }
 
-//TODO, check the jointControllersConfigs and see which type want, now only position
+//TODO, check the jointControllersConfigs and see which type want, now only position and vel
 void gazebo::RoseePlugin::setPIDs() {
     
     for (auto joint : joints ) {
@@ -180,6 +173,9 @@ void gazebo::RoseePlugin::QueueThread() {
         
         //see if some messages for subs have arrived
         this->rosQueue.callAvailable(ros::WallDuration(timeout));
+        
+        updatePIDfromParam();
+        
         
         setReference();
     }
@@ -236,9 +232,43 @@ void gazebo::RoseePlugin::setReference (  )
     }
 }
 
-void gazebo::RoseePlugin::pid_cfg_clbk ( rosee_gazebo_plugins::pidConfig &config, uint32_t level ) {
-  ROS_INFO_STREAM("Reconfigure Request: " << 
-            config.message <<
-            config.a <<
-            config.b);
+//TODO update only if pids updated???
+void gazebo::RoseePlugin::updatePIDfromParam() {
+    
+    for (auto & contrConf : jointControllersConfigsMap ) {
+        
+        double p, i, d;
+        //TODO param name nicer
+        if ( rosNode->getParam ( ("/rosee_gazebo_plugin_DynReconfigure/" + model->GetName() + "/" + contrConf.second.name + "/p"), p ) ) {
+        } else {
+            std::cout << ":CCCCCCC" << std::endl;
+        }
+        
+        rosNode->getParam ( (model->GetName() + "/" + contrConf.second.name + "/i"), i ) ;
+        rosNode->getParam ( (model->GetName() + "/" + contrConf.second.name + "/d"), d ) ;
+        
+        //update the map (for consistency only, not necessary in truth)
+        contrConf.second.p = p ;
+        contrConf.second.i = i ;
+        contrConf.second.d = d ;
+        
+        if ( contrConf.second.type.compare ("JointPositionController") == 0) {
+            model->GetJointController()->SetPositionPID(
+                model->GetJoint(contrConf.second.jointName) ->GetScopedName(), common::PID(p, i, d));
+            
+        } else if ( contrConf.second.type.compare ("JointVelocityController") == 0) {
+            model->GetJointController()->SetVelocityPID(
+                model->GetJoint(contrConf.second.jointName) ->GetScopedName(), common::PID(p, i, d));
+        } 
+        else if ( contrConf.second.type.compare ("JointEffortController") == 0 ) {
+            std::cout << "still not implememnted" << std::endl;
+        } else {
+            std::cout << "[ERROR gazebo plugin]:  Controller " << contrConf.first << " is of type " << contrConf.second.type
+                << " which I don't recognize " <<  std::endl;
+        }
+        
+        
+    }
+    
+    
 }
