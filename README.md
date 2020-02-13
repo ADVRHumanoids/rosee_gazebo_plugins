@@ -32,7 +32,7 @@ And set it to have things like that, for example to tune the gains:
 </p>
 
 ### How to run with your model
-* Be sure to have an urdf file ready for gazebo [info](http://gazebosim.org/tutorials/?tut=ros_urdf) 
+* Be sure to have an urdf file ready for gazebo [info](http://gazebosim.org/tutorials/?tut=ros_urdf)   
     Also add in your urdf :
     ```xml
     <gazebo>
