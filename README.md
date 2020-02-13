@@ -3,7 +3,7 @@
 *****
 It is very similar to the "official" ROS package for control : [gazebo_ros_control](http://gazebosim.org/tutorials/?tut=ros_control)
 
-It includes a gazebo plugin to take commands (*references*) from */ros_end_effector/joint_states* topic and use to move the simulated robot in gazebo. The same plugin also publish the "real" joint States (derived by the gazebo simulation) in the topic */rosee_gazebo_plugin/joint_states*.
+It includes a gazebo plugin to take commands (*references*) from */ros_end_effector/joint_states* topic and use to move the simulated robot in gazebo. The same plugin also publish the "real" joint States (derived by the gazebo simulation) in the topic */rosee_gazebo_plugin/joint_states*.  
 **Take care:** In */ros_end_effector/joint_states* topic there are state for only some joints (and never for not actuated ones); while in */rosee_gazebo_plugin/joint_states* there are state for ALL joints, always, included fixed and not actuated. Gazebo do not have a "getActuatedJoint" function from the model parsed.
 
 
@@ -28,7 +28,7 @@ rqt
 ```
 And set it to have things like that, for example to tune the gains: 
 <p align="center">
-<img src="images/rqt.png" width="300" height="210"> <img src="images/3.png" width="300" height="210">
+<img src="images/rqt.png" width="700">
 </p>
 
 ### How to run with your model
@@ -36,9 +36,8 @@ And set it to have things like that, for example to tune the gains:
     Also add in your urdf :
     ```xml
     <gazebo>
-        <plugin name="SOMENAME" filename="librosee_plugin.so">
-        </plugin>
-		</gazebo>
+        <plugin name="SOMENAME" filename="librosee_plugin.so"> </plugin>
+    </gazebo>
     ```
 * Create new *YOURROBOTNAME_control.yaml* file in *configs* folder, following the examples present there. Note that supported controllers *type* are *JointPositionController* and *JointVelocityController*
 * Create Launch file similar to the ones present in *launch* folder changing the name when necessary:
