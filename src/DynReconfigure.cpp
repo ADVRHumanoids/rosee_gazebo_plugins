@@ -56,8 +56,7 @@ int main(int argc, char **argv) {
 bool ROSEE::DynReconfigure::parseControllersName (std::string robotName, std::vector<std::string> &controllersName) {
     
     //TODO USE THE ORIGINAL UTILS FROM ROSEE
-    //std::string dirPath = ROSEE::Utils::getPackagePath() + "configs/" + robotName + "_control.yaml" ;
-    std::string dirPath = ROSEE::Utils::getPackagePath() + "configs/two_finger_control.yaml" ;
+    std::string dirPath = ROSEE::Utils::getPackagePath() + "configs/" + robotName + "_control.yaml" ;
     std::ifstream ifile ( dirPath );
     if (! ifile) {
         ROS_ERROR_STREAM ( "[ERROR gazebo plugin]: file " << dirPath << " not found. " );
@@ -72,7 +71,7 @@ bool ROSEE::DynReconfigure::parseControllersName (std::string robotName, std::ve
         
         if (robotName.compare (kv.first.as<std::string>()) != 0 ) {
             ROS_ERROR_STREAM ( "'" << robotName << "' taken as argument, does not match the robot name found in" << 
-                "configs/" + robotName + "_control.yaml that is: '" <<  kv.first.as<std::string>() << "'");
+                " configs/" + robotName + "_control.yaml that is: '" <<  kv.first.as<std::string>() << "'");
             return false;
         }
         for (const auto & controller: kv.second ) {
