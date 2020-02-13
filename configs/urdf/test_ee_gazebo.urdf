@@ -254,14 +254,8 @@
     <origin xyz="0.6 -0.5 -0.25"/>
   </joint>
 
-
-<!-- GAZEBO Stuff --> 
-	<gazebo>
-		<plugin name="test_ee_control" filename="libtest_ee_plugin.so">
-			<robotNamespace>/test_ee</robotNamespace>
-		  <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
-		  <legacyModeNS>true</legacyModeNS> <!-- to solve GazeboRosControlPlugin missing <legacyModeNS> ERROR-->
-		</plugin>
-	</gazebo>
-
+  <gazebo>
+    <plugin name="test_ee_controller" filename="librosee_plugin.so">
+    </plugin>
+  </gazebo>
 </robot>

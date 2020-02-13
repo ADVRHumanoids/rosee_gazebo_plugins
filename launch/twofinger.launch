@@ -10,28 +10,15 @@
     <arg name="verbose" value="true"/>
   </include>
 
-  <param name="robot_description" textfile="$(find rosee_gazebo_plugins)/configs/urdf/two_finger_gazebo.urdf"/>
-  <param name="robot_description_semantic" textfile="$(find ros_end_effector)/configs/srdf/two_finger.srdf" />
+<!-- not used for now maybe if we have rviz here yes? -->
+  <!-- <param name="robot_description" textfile="$(find rosee_gazebo_plugins)/configs/urdf/two_finger_gazebo.urdf"/> -->
+  <!-- <param name="robot_description_semantic" textfile="$(find ros_end_effector)/configs/srdf/two_finger.srdf" /> -->
   
   <!-- load yaml for controllers -->
   <rosparam param="rosee_gazebo_plugin" file="$(find rosee_gazebo_plugins)/configs/two_finger_control.yaml" />
 
 <!-- Spawn a robot into Gazebo   -->
 	 <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find rosee_gazebo_plugins)/configs/urdf/two_finger_gazebo.urdf -urdf -z 1 -model two_finger" />
-
-
-  <!-- Load joint controller configurations from YAML file to parameter server -->
-  <!-- <rosparam file="$(find rosee_gazebo_plugins)/configs/two_finger_control.yaml" command="load" /> -->
-
-  <!-- load the controllers -->
-  <!-- <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" ns="/two_finger" args="joint_state_controller"/> -->
-
-  <!-- convert joint states to TF transforms for rviz, etc -->
-  <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
-    respawn="false" output="screen">
-    <remap from="/joint_states" to="/two_finger/joint_states" /> 
-  </node> -->
 
 
 </launch>

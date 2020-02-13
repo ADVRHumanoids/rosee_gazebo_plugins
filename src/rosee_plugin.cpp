@@ -1,13 +1,3 @@
-/** 
- * 
- *  std::string jstate_topic_name  = "joint_states";
-    const int jstate_queue = 10;
-
-    _joint_state_pub = _nh.advertise<sensor_msgs::JointState> ( jstate_topic_name, jstate_queue );
- * 
- */
-
-
 #include <rosee_gazebo_plugins/rosee_plugin.h>
 
 void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
@@ -31,36 +21,6 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     parseControllerConfig();
 
     setPIDs();
-
-
-//     auto joint = _model->GetJoints()[1]; //bbase to left
-//     if ( jointControllersConfigsMap.at(joint->GetName()).type.compare ("JointPositionController") == 0) {
-//         this->model->GetJointController()->SetPositionTarget( joint->GetScopedName(), 0.5); 
-//     } else if ( jointControllersConfigsMap.at(joint->GetName()).type.compare ("JointVelocityController") == 0) {
-//         this->model->GetJointController()->SetVelocityTarget( joint->GetScopedName(), 0.1); 
-//     }
-//     
-//     joint = _model->GetJoints()[2]; //left to leftip
-//         if ( jointControllersConfigsMap.at(joint->GetName()).type.compare ("JointPositionController") == 0) {
-//         this->model->GetJointController()->SetPositionTarget( joint->GetScopedName(), 0.5); 
-//     } else if ( jointControllersConfigsMap.at(joint->GetName()).type.compare ("JointVelocityController") == 0) {
-//         this->model->GetJointController()->SetVelocityTarget( joint->GetScopedName(), 0.1); 
-//     }
-// 
-//     joint = _model->GetJoints()[3]; //base to right
-//         if ( jointControllersConfigsMap.at(joint->GetName()).type.compare ("JointPositionController") == 0) {
-//         this->model->GetJointController()->SetPositionTarget( joint->GetScopedName(), -0.5); 
-//     } else if ( jointControllersConfigsMap.at(joint->GetName()).type.compare ("JointVelocityController") == 0) {
-//         this->model->GetJointController()->SetVelocityTarget( joint->GetScopedName(), -0.1); 
-//     }
-//      
-//     joint = _model->GetJoints()[4]; //righ to right tip
-//         if ( jointControllersConfigsMap.at(joint->GetName()).type.compare ("JointPositionController") == 0) {
-//         this->model->GetJointController()->SetPositionTarget( joint->GetScopedName(), -0.5); 
-//     } else if ( jointControllersConfigsMap.at(joint->GetName()).type.compare ("JointVelocityController") == 0) {
-//         this->model->GetJointController()->SetVelocityTarget( joint->GetScopedName(), -0.1); 
-//     }
-    
 
     // Initialize ros, if it has not already bee initialized.
     if (!ros::isInitialized())
@@ -86,7 +46,7 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     
     //TODO relative scope?
     //TODO name of pub sub topics...
-    rosPub = rosNode->advertise < sensor_msgs::JointState > ( "ros_end_effector/gazebo/joint_state", 1 ) ;
+    rosPub = rosNode->advertise < sensor_msgs::JointState > ( "joint_state", 1 ) ;
 
 
     // Spin up the queue helper thread.
@@ -96,10 +56,8 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 
 void gazebo::RoseePlugin::parseControllerConfig() {
     
-    //TODO relative path
-    //TODO check elsewhere if file exist or not
     //TODO USE THE ORIGINAL UTILS FROM ROSEE
-    std::string dirPath = ROSEE::Utils::getPackagePath() + "configs/two_finger_control.yaml" ;
+    std::string dirPath = ROSEE::Utils::getPackagePath() + "configs/" + model->GetName() + "_control.yaml" ;
     std::ifstream ifile ( dirPath );
     if (! ifile) {
         ROS_ERROR_STREAM ("[ERROR gazebo plugin]: file " << dirPath << " not found. ");
@@ -130,7 +88,6 @@ void gazebo::RoseePlugin::parseControllerConfig() {
     } 
 }
 
-//TODO, check the jointControllersConfigs and see which type want, now only position and vel
 void gazebo::RoseePlugin::setPIDs() {
     
     for (auto joint : joints ) {
@@ -163,6 +120,7 @@ void gazebo::RoseePlugin::jointStateClbk ( const sensor_msgs::JointStateConstPtr
     jointStateMsg = *_msg;
 }
 
+//TODO take rate from somewhere
 void gazebo::RoseePlugin::QueueThread() {
     static const double timeout = 0.01;
     ros::Rate r(100); //100 Hz
