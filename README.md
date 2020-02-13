@@ -49,9 +49,9 @@ And set it to have things like that, for example to tune the gains:
     <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
         args="-file $(find rosee_gazebo_plugins)/configs/urdf/YOURROBOTNAME.urdf -urdf -z 1 -model test_ee" />
     ```
-* launch your new launch file and have fun 
+* Launch your new launch file and have fun 
 
-### Change more params with Dynamic Reconfigurator
+## Change more params with Dynamic Reconfigurator
 * Check the ros tutorials about that ( [here](http://wiki.ros.org/dynamic_reconfigure/Tutorials) ) 
 * Add (or extend) config files in *cfg* folder
 * Check the DynReconfigure code
