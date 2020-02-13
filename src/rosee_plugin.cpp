@@ -3,13 +3,13 @@
 void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 {
     // Just output a message for now
-    std::cout << "\nThe test_ee_plugin plugin is attach to model '" <<
+    std::cout << "The test_ee_plugin plugin is attach to model '" <<
         _model->GetName() << "'" << std::endl;
         
      // Safety check
     if (_model->GetJointCount() == 0)
     {
-        std::cerr << "Invalid joint count, test_ee_plugin  not loaded\n";
+        std::cerr << "[ERROR gazebo plugin] Invalid joint count, it is zero! " << std::endl;
         return;
     }
 
@@ -18,21 +18,23 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     //store all joints.. note that also fixed joints are stored
     joints = model->GetJoints();
 
-    parseControllerConfig();
+    if (! parseControllerConfig() ) {
+        return;
+    }
 
-    setPIDs();
+    if (! setPIDs() ) {
+        return;
+    }
 
-    // Initialize ros, if it has not already bee initialized.
+    // Initialize ros, if it has not already been initialized.
     if (!ros::isInitialized())
     {
         int argc = 0;
         char **argv = NULL;
-        ros::init(argc, argv, "rosee_gazebo_plugin",
-        ros::init_options::NoSigintHandler);
+        ros::init(argc, argv, "rosee_gazebo_plugin", ros::init_options::NoSigintHandler);
     }
 
-    // Create our ROS node. This acts in a similar manner to
-    // the Gazebo node
+    // Create our ROS node. 
     this->rosNode.reset(new ros::NodeHandle("rosee_gazebo_plugin"));
 
     // Create a named topic, and subscribe to it.
@@ -44,31 +46,54 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
         ros::VoidPtr(), &this->rosQueue);
     this->rosSub = this->rosNode->subscribe(so);
     
-    //TODO relative scope?
-    //TODO name of pub sub topics...
-    rosPub = rosNode->advertise < sensor_msgs::JointState > ( "joint_state", 1 ) ;
+    rosPub = rosNode->advertise < sensor_msgs::JointState > ( "joint_states", 1 ) ;
 
 
     // Spin up the queue helper thread.
-    this->rosQueueThread = std::thread(std::bind(&RoseePlugin::QueueThread, this));
+    double rate = 0.0;
+    if (! rosNode->getParam("/rate", rate)){
+        ROS_INFO_STREAM ("Ros parameter for rate not found, I'm setting the default rate of 100 Hz");
+        rate = 100.0;
+    }
+    this->rosQueueThread = std::thread(std::bind(&RoseePlugin::QueueThread, this, rate));
 }
 
 
-void gazebo::RoseePlugin::parseControllerConfig() {
+void gazebo::RoseePlugin::QueueThread(double rate) {
+    ros::Rate r(rate); 
+    while (this->rosNode->ok()) {
+        
+        //TODO check the order of this three function
+        
+        pubJointState();
+
+        // see if some messages for subs have arrived
+        this->rosQueue.callAvailable(ros::WallDuration());
+        
+        updatePIDfromParam();
+        
+        setReference();
+        
+        r.sleep();
+    }
+}
+
+
+bool gazebo::RoseePlugin::parseControllerConfig() {
     
-    //TODO USE THE ORIGINAL UTILS FROM ROSEE
+    //TODO USE THE ORIGINAL UTILS FROM ROSEE or not?
     std::string dirPath = ROSEE::Utils::getPackagePath() + "configs/" + model->GetName() + "_control.yaml" ;
     std::ifstream ifile ( dirPath );
     if (! ifile) {
         ROS_ERROR_STREAM ("[ERROR gazebo plugin]: file " << dirPath << " not found. ");
-            return;
+            return false;
     }
     
     YAML::Node node = YAML::LoadFile(dirPath);
     
     if ( ! node[model->GetName()] ) {
         ROS_ERROR_STREAM ("[ERROR gazebo plugin]: " << model->GetName() << " not found in the config file " << "two_finger_control.yaml" );
-            return;
+            return false;
     }
     
     for ( auto controller: node[model->GetName()] ) {
@@ -81,14 +106,16 @@ void gazebo::RoseePlugin::parseControllerConfig() {
         jcf.d = controller.second["pid"]["d"].as<double>();
         
         if ( ! jointControllersConfigsMap.insert ( std::make_pair (jcf.jointName, jcf) ). second ) {
-            ROS_ERROR_STREAM ( "[ERROR gazebo plugin]: " << " Multiple controllers for joint " << jcf.jointName << " are present in the config file " 
-                << "two_finger_control.yaml" );
-            return;
+            ROS_ERROR_STREAM ( "[ERROR gazebo plugin]: " << " Multiple controllers for joint " << jcf.jointName 
+            << " are present in the config file " <<  model->GetName() + "_control.yaml" );
+            return false;
         }
-    } 
+    }
+    
+    return true;
 }
 
-void gazebo::RoseePlugin::setPIDs() {
+bool gazebo::RoseePlugin::setPIDs() {
     
     for (auto joint : joints ) {
         
@@ -108,9 +135,11 @@ void gazebo::RoseePlugin::setPIDs() {
         } 
         else if ( it->second.type.compare ("JointEffortController") == 0 ) {
             ROS_ERROR_STREAM ( "JointEffortController still not implememnted" );
+            return false;
         } else {
             ROS_ERROR_STREAM ( "[ERROR gazebo plugin]:  Controller " << it->first << " is of type " << it->second.type
                 << " which I don't recognize " );
+            return false;
         }
     }
 }
@@ -118,28 +147,6 @@ void gazebo::RoseePlugin::setPIDs() {
 
 void gazebo::RoseePlugin::jointStateClbk ( const sensor_msgs::JointStateConstPtr &_msg ) {
     jointStateMsg = *_msg;
-}
-
-//TODO take rate from somewhere
-void gazebo::RoseePlugin::QueueThread() {
-    static const double timeout = 0.01;
-    ros::Rate r(100); //100 Hz
-    while (this->rosNode->ok()) {
-        
-        //TODO check the order of this three function
-        
-        pubJointState();
-        
-        //see if some messages for subs have arrived
-        this->rosQueue.callAvailable(ros::WallDuration(timeout));
-        
-        updatePIDfromParam();
-        
-        
-        setReference();
-        
-        r.sleep();
-    }
 }
 
 void gazebo::RoseePlugin::pubJointState ( ) {
@@ -157,9 +164,7 @@ void gazebo::RoseePlugin::pubJointState ( ) {
         
     }
     rosPub.publish(msg);
-    
 }
-
 
 void gazebo::RoseePlugin::setReference (  )
 {        
@@ -184,11 +189,16 @@ void gazebo::RoseePlugin::setReference (  )
                 scopedJointName, jointStateMsg.velocity.at ( i ) );
             
         } else if ( it->second.type.compare ("JointEffortController") == 0 ) {
+            // should have checked this error before in parseControllerConfig
             ROS_ERROR_STREAM ( "JointEffortController still not implememnted" );
+            return;
             
         } else {
+            // should have checked this error before in parseControllerConfig
             ROS_ERROR_STREAM ("[ERROR gazebo plugin]:  Controller " << it->first << " is of type " << it->second.type
                 << " which I don't recognize " );
+            return;
+
         }
     }
 }
@@ -199,17 +209,22 @@ void gazebo::RoseePlugin::updatePIDfromParam() {
     for (auto & contrConf : jointControllersConfigsMap ) {
         
         double p, i, d;
-        //TODO param name nicer
         std::string paramName = "/rosee_gazebo_plugin/" + model->GetName() + "/" + contrConf.second.name + "/pid" ;
         if ( rosNode->getParam ( (paramName + "/p"), p ) ) {
         } else {
             ROS_WARN_STREAM ( "[WARNING gazebo plugin] param " << ( paramName + "/p")  << " not loaded on parameter server" );
         }
+        if ( rosNode->getParam ( (paramName + "/i"), i ) ) {
+        } else {
+            ROS_WARN_STREAM ( "[WARNING gazebo plugin] param " << ( paramName + "/i")  << " not loaded on parameter server" );
+        }
+        if ( rosNode->getParam ( (paramName + "/d"), d ) ) {
+        } else {
+            ROS_WARN_STREAM ( "[WARNING gazebo plugin] param " << ( paramName + "/d")  << " not loaded on parameter server" );
+        }
         
-        rosNode->getParam ( ( paramName + "/i"), i ) ;
-        rosNode->getParam ( ( paramName + "/d"), d ) ;
-        
-        //update the map (for consistency only, not necessary in truth)
+        //update the map (for consistency only, not necessary in truth because pids of map are only
+        // checked once in setPID function)
         contrConf.second.p = p ;
         contrConf.second.i = i ;
         contrConf.second.d = d ;
@@ -223,14 +238,14 @@ void gazebo::RoseePlugin::updatePIDfromParam() {
                 model->GetJoint(contrConf.second.jointName) ->GetScopedName(), common::PID(p, i, d));
         } 
         else if ( contrConf.second.type.compare ("JointEffortController") == 0 ) {
+            // should have checked this error before in parseControllerConfig
             ROS_ERROR_STREAM ( "JointEffortController still not implememnted" );
+            return;
         } else {
+            // should have checked this error before in parseControllerConfig
             ROS_ERROR_STREAM ( "[ERROR gazebo plugin]:  Controller " << contrConf.first << " is of type " << contrConf.second.type
                 << " which I don't recognize " );
-        }
-        
-        
+            return;
+        }        
     }
-    
-    
 }

@@ -28,11 +28,11 @@ int main(int argc, char **argv) {
     std::string robotName = argv[1];
     
     std::vector <std::string> controllersName;
-    if (! ROSEE::DynReconfigure::parseControllerConfig (robotName, controllersName )) {
+    if (! ROSEE::DynReconfigure::parseControllersName (robotName, controllersName )) {
         return -1;
     }
     
-    //we have to "store" all the vectors to not make them go out of scope
+    //we have to "store" all the vectors to not make the servers go out of scope
     std::vector< std::shared_ptr <dynamic_reconfigure::Server<rosee_gazebo_plugins::pidConfig> > > drVector;
 
     for (auto controller : controllersName) {
@@ -45,8 +45,7 @@ int main(int argc, char **argv) {
         cb = boost::bind(&ROSEE::DynReconfigure::pid_cfg_clbk, _1, _2, "/rosee_gazebo_plugin/" + robotName + "/" + controller + "/pid");
         dr_srv_ptr->setCallback(cb);
         drVector.push_back ( dr_srv_ptr );
-        
-        ros::spinOnce();
+
     }
        
     ros::spin();
@@ -54,20 +53,19 @@ int main(int argc, char **argv) {
     
 }
 
-/* Here we parse only the hand name and controller name, to know the name of the parameter loaded in the launchfile */
-bool ROSEE::DynReconfigure::parseControllerConfig (std::string robotName, std::vector<std::string> &controllersName) {
+bool ROSEE::DynReconfigure::parseControllersName (std::string robotName, std::vector<std::string> &controllersName) {
     
-    //TODO relative path
-    //TODO check elsewhere if file exist or not
     //TODO USE THE ORIGINAL UTILS FROM ROSEE
-    std::string dirPath = ROSEE::Utils::getPackagePath() + "configs/" + robotName + "_control.yaml" ;
+    //std::string dirPath = ROSEE::Utils::getPackagePath() + "configs/" + robotName + "_control.yaml" ;
+    std::string dirPath = ROSEE::Utils::getPackagePath() + "configs/two_finger_control.yaml" ;
     std::ifstream ifile ( dirPath );
     if (! ifile) {
         ROS_ERROR_STREAM ( "[ERROR gazebo plugin]: file " << dirPath << " not found. " );
-            return false;
+        return false;
     }
     
     YAML::Node node = YAML::LoadFile(dirPath);
+    
     // this for is necessary to take the first line of yaml file (the robot name). In truth there is only a name
     // so this loop is done only once
     for (const auto& kv : node) {
@@ -75,6 +73,7 @@ bool ROSEE::DynReconfigure::parseControllerConfig (std::string robotName, std::v
         if (robotName.compare (kv.first.as<std::string>()) != 0 ) {
             ROS_ERROR_STREAM ( "'" << robotName << "' taken as argument, does not match the robot name found in" << 
                 "configs/" + robotName + "_control.yaml that is: '" <<  kv.first.as<std::string>() << "'");
+            return false;
         }
         for (const auto & controller: kv.second ) {
             controllersName.push_back ( controller.first.as<std::string>() ) ;
@@ -83,11 +82,10 @@ bool ROSEE::DynReconfigure::parseControllerConfig (std::string robotName, std::v
     return true;
 }
 
-//TODO un updated_pid così il rosee_plugin aggiorna i pid solo se updated??
-void ROSEE::DynReconfigure::pid_cfg_clbk( rosee_gazebo_plugins::pidConfig &config, uint32_t level, std::string paramName) {
+
+void ROSEE::DynReconfigure::pid_cfg_clbk ( rosee_gazebo_plugins::pidConfig &config, uint32_t level, std::string paramName) {
   ROS_INFO_STREAM("Reconfigure Request: " << "for " << paramName << " : " <<
             "p=" << config.p << "   " << 
             "i=" << config.i << "   " <<
             "d=" << config.d);
 }
-
