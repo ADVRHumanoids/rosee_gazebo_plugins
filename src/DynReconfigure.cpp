@@ -29,12 +29,12 @@ int main(int argc, char **argv) {
 
     for (auto controller : controllersName) {
         
-        ros::NodeHandle nh ("~/" + handName + "/" + controller) ;
+        ros::NodeHandle nh ("/rosee_gazebo_plugin/" + handName + "/" + controller + "/pid") ;
         std::shared_ptr <dynamic_reconfigure::Server<rosee_gazebo_plugins::pidConfig> > dr_srv_ptr = 
            std::make_shared <dynamic_reconfigure::Server<rosee_gazebo_plugins::pidConfig>> ( nh ) ;
         
         dynamic_reconfigure::Server<rosee_gazebo_plugins::pidConfig>::CallbackType cb;
-        cb = boost::bind(&ROSEE::DynReconfigure::pid_cfg_clbk, _1, _2);
+        cb = boost::bind(&ROSEE::DynReconfigure::pid_cfg_clbk, _1, _2, "/rosee_gazebo_plugin/" + handName + "/" + controller + "/pid");
         dr_srv_ptr->setCallback(cb);
         drVector.push_back ( dr_srv_ptr );
         
@@ -55,7 +55,7 @@ void ROSEE::DynReconfigure::parseControllerConfig (std::string &handName, std::v
     std::string dirPath = ROSEE::Utils::getPackagePath() + "configs/two_finger_control.yaml" ;
     std::ifstream ifile ( dirPath );
     if (! ifile) {
-        std::cout << "[ERROR gazebo plugin]: file " << dirPath << " not found. "  << std::endl ;
+        ROS_ERROR_STREAM ( "[ERROR gazebo plugin]: file " << dirPath << " not found. " );
             return;
     }
     
@@ -69,10 +69,10 @@ void ROSEE::DynReconfigure::parseControllerConfig (std::string &handName, std::v
 }
 
 //TODO un updated_pid così il rosee_plugin aggiorna i pid solo se updated??
-void ROSEE::DynReconfigure::pid_cfg_clbk( rosee_gazebo_plugins::pidConfig &config, uint32_t level) {
-  ROS_INFO_STREAM("Reconfigure Request: " << 
-            config.p << "   " << 
-            config.i << "   " <<
-            config.d);
+void ROSEE::DynReconfigure::pid_cfg_clbk( rosee_gazebo_plugins::pidConfig &config, uint32_t level, std::string paramName) {
+  ROS_INFO_STREAM("Reconfigure Request: " << "for " << paramName << " : " <<
+            "p=" << config.p << "   " << 
+            "i=" << config.i << "   " <<
+            "d=" << config.d);
 }
 

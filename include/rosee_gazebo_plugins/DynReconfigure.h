@@ -32,7 +32,7 @@
 namespace ROSEE {
 namespace DynReconfigure {
 
-void pid_cfg_clbk ( rosee_gazebo_plugins::pidConfig &config, uint32_t level) ;
+void pid_cfg_clbk ( rosee_gazebo_plugins::pidConfig &config, uint32_t level, std::string paramName) ;
 void parseControllerConfig (std::string &handName, std::vector<std::string> &controllersName) ;
 
 

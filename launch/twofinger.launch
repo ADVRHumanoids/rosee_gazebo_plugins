@@ -14,7 +14,7 @@
   <param name="robot_description_semantic" textfile="$(find ros_end_effector)/configs/srdf/two_finger.srdf" />
   
   <!-- load yaml for controllers -->
-  <rosparam param="rosee_gazebo_plugin_DynReconfigure" file="$(find rosee_gazebo_plugins)/configs/two_finger_control.yaml" />
+  <rosparam param="rosee_gazebo_plugin" file="$(find rosee_gazebo_plugins)/configs/two_finger_control.yaml" />
 
 <!-- Spawn a robot into Gazebo   -->
 	 <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find rosee_gazebo_plugins)/configs/urdf/two_finger_gazebo.urdf -urdf -z 1 -model two_finger" />
