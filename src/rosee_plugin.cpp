@@ -142,6 +142,7 @@ bool gazebo::RoseePlugin::setPIDs() {
             return false;
         }
     }
+    return true;
 }
 
 
