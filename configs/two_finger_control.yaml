@@ -2,7 +2,7 @@
 # the one used by "official" ros plugin http://gazebosim.org/tutorials/?tut=ros_control
 #WARNING: DO NOT USE TAB FOR IDENT YAML FILE: This is not permitted by the YAML spec
 two_finger: #robot name
-  #Controller for each joint. type now is only JointPositionControllerf
+  #Controller for each joint. type now is only JointPositionController or JointVelocityController
   base_to_left_finger_controller:
     type: JointPositionController
     joint_name: base_to_left_finger
