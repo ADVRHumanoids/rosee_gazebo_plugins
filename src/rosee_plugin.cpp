@@ -38,6 +38,7 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     this->rosNode.reset(new ros::NodeHandle("rosee_gazebo_plugin"));
 
     // Create a named topic, and subscribe to it.
+    //TODO take namespace from somewhere
     ros::SubscribeOptions so =
         ros::SubscribeOptions::create<sensor_msgs::JointState>(
         "/ros_end_effector/joint_states",
@@ -156,14 +157,19 @@ void gazebo::RoseePlugin::pubJointState ( ) {
     msg.header.stamp = ros::Time::now();
 
     for ( auto joint : joints ) {
-        
-        msg.name.push_back(joint->GetName()); //index 0 is the "right" axis
-        msg.position.push_back(joint->GetAngle(0).Radian()); //index 0 is the "right" axis
-        msg.velocity.push_back(joint->GetVelocity(0)); //index 0 is the "right" axis
-        //WARNING getForce not yet implemented (in gazebo7...)
-        msg.effort.push_back(joint->GetForce(0)); //index 0 is the "right" axis
-        
+        //TODO also mimic are returned... leave as it is?
+        //type of joint is a sum: so fixed is joint+fixed_joint (0x4000 + 0x40 = 0x4040)
+        if (joint->GetType() != 
+                (gazebo::physics::Entity::JOINT + gazebo::physics::Entity::FIXED_JOINT) ) {
+            
+            msg.name.push_back(joint->GetName());
+            msg.position.push_back(joint->GetAngle(0).Radian()); //index 0 is the "right" axis
+            msg.velocity.push_back(joint->GetVelocity(0)); //index 0 is the "right" axis
+            //WARNING getForce not yet implemented (in gazebo7 is an empty function...)
+            msg.effort.push_back(joint->GetForce(0)); //index 0 is the "right" axis
+        }
     }
+    
     rosPub.publish(msg);
 }
 
