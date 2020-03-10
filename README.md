@@ -4,7 +4,7 @@
 It is very similar to the "official" ROS package for control : [gazebo_ros_control](http://gazebosim.org/tutorials/?tut=ros_control)
 
 It includes a gazebo plugin to take commands (*references*) from */ros_end_effector/joint_states* topic and use to move the simulated robot in gazebo. The same plugin also publish the "real" joint States (derived by the gazebo simulation) in the topic */rosee_gazebo_plugin/joint_states*.  
-**Take care:** In */ros_end_effector/joint_states* topic there are state for only some joints (and never for not actuated ones); while in */rosee_gazebo_plugin/joint_states* there are state for ALL joints, always, included fixed and not actuated. Gazebo do not have a "getActuatedJoint" function from the model parsed.
+**Take care:** In */ros_end_effector/joint_states* topic there are state for only some joints (and never for not actuated ones); while in */rosee_gazebo_plugin/joint_states* there are state for ALL joints, always, included fixed and not actuated. Gazebo does not have a "getActuatedJoint" function from the model parsed.
 
 
 At the moment each joint can be commanded in position or in velocity, using the *SetPositionTarget()* and *SetVelocityTarget()* of gazebo. Gains (pid) are settable in a config file (see later for istructions)
