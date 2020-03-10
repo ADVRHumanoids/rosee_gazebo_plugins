@@ -12,7 +12,7 @@ At the moment each joint can be commanded in position or in velocity, using the 
 
 There is also a ROS node, *rosee_gazebo_plugin_DynReconfigure* which create *dynamic_reconfigure* servers to give the possibility to change the PID params during the simulation.
 
-##### Mimic Joints
+#### Mimic Joints
 Thanks to the [mimic_joint_plugin](https://github.com/roboticsgroup/roboticsgroup_gazebo_plugins) (and to [mimic_joint_gazebo_tutorial](https://github.com/mintar/mimic_joint_gazebo_tutorial) to understand how to use it), now also mimic joints work correctly. The argument set_pid of this plugin should be set to false, because otherwise a pid controller is used, that is the "default" gazebo one (see plugin page for more info). And also when mimicking, we want to reply exactly the angle of the other joint (or not?). See above how to deal with this plugin if your urdf model has some mimic joint
 
 ## How to Run
@@ -29,6 +29,7 @@ roslaunch rosee_gazebo_plugins twofinger.launch
 ```bash
 rosrun rosee_gazebo_plugins DynReconfigure two_finger
 # or rosrun rosee_gazebo_plugins DynReconfigure test_ee
+# or rosrun rosee_gazebo_plugins DynReconfigure two_finger_mimic
 ```
 #### Also useful
 ```bash
