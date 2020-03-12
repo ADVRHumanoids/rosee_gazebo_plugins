@@ -22,6 +22,6 @@
     <rosparam param="rosee_gazebo_plugin" file="$(find rosee_gazebo_plugins)/configs/test_ee_control.yaml" />
 
     <!-- Spawn a robot into Gazebo   -->
-    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find rosee_gazebo_plugins)/configs/urdf/test_ee_gazebo.urdf -urdf -z 1 -model test_ee" />
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find ros_end_effector)/configs/urdf/test_ee.urdf -urdf -z 1 -model test_ee" />
 
 </launch>

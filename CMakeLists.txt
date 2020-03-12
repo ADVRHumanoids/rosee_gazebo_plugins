@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 2.8.3 FATAL_ERROR)
 project(rosee_gazebo_plugins)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
@@ -133,8 +133,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/rosee_gazebo_plugins.cpp
 # )
-add_library(rosee_plugin SHARED
-        src/rosee_plugin.cpp
+add_library(RoseePlugin SHARED
+    src/RoseePlugin.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -163,7 +163,7 @@ add_dependencies(DynReconfigure ${PROJECT_NAME}_gencfg)
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(rosee_plugin
+target_link_libraries(RoseePlugin
     ${GAZEBO_LIBRARIES}
     ${catkin_LIBRARIES}
     ${roscpp_LIBRARIES}
