@@ -13,7 +13,7 @@
 #include <gazebo/physics/physics.hh>
 
 #include <yaml-cpp/yaml.h>
-#include <rosee_gazebo_plugins/Utils.h>
+#include <ROSEndEffector/Utils.h>
 
 namespace gazebo
 {

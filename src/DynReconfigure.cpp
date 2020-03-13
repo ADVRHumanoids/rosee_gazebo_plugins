@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
            std::make_shared <dynamic_reconfigure::Server<rosee_gazebo_plugins::pidConfig>> ( nh ) ;
         
         dynamic_reconfigure::Server<rosee_gazebo_plugins::pidConfig>::CallbackType cb;
-        cb = boost::bind(&ROSEE::DynReconfigure::pid_cfg_clbk, _1, _2, "/rosee_gazebo_plugin/" + robotName + "/" + controller + "/pid");
+        cb = boost::bind(&ROSEE::DynReconfigure::pidCfgClbk, _1, _2, "/rosee_gazebo_plugin/" + robotName + "/" + controller + "/pid");
         dr_srv_ptr->setCallback(cb);
         drVector.push_back ( dr_srv_ptr );
 
@@ -82,7 +82,7 @@ bool ROSEE::DynReconfigure::parseControllersName (std::string robotName, std::ve
 }
 
 
-void ROSEE::DynReconfigure::pid_cfg_clbk ( rosee_gazebo_plugins::pidConfig &config, uint32_t level, std::string paramName) {
+void ROSEE::DynReconfigure::pidCfgClbk ( rosee_gazebo_plugins::pidConfig &config, uint32_t level, std::string paramName) {
   ROS_INFO_STREAM("Reconfigure Request: " << "for " << paramName << " : " <<
             "p=" << config.p << "   " << 
             "i=" << config.i << "   " <<

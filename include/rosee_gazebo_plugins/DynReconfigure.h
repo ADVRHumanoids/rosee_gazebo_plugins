@@ -28,7 +28,7 @@
 #include "../../cfg/cpp/rosee_gazebo_plugins/pidConfig.h"
 
 #include <yaml-cpp/yaml.h>
-#include <rosee_gazebo_plugins/Utils.h>
+#include <ROSEndEffector/Utils.h>
 
 /**
  * @brief main to handle the ros node dynamic_reconfigure  
@@ -47,7 +47,7 @@ namespace DynReconfigure {
      * @param level
      * @paramName the name of the param to be updated, used here to print info messages about the update
      */
-    void pid_cfg_clbk ( rosee_gazebo_plugins::pidConfig &config, uint32_t level, std::string paramName) ;
+    void pidCfgClbk ( rosee_gazebo_plugins::pidConfig &config, uint32_t level, std::string paramName) ;
     
     /**
      * @brief parse the controller names from the yaml file configs/ROBOTNAME_control.yaml (the same file used by
