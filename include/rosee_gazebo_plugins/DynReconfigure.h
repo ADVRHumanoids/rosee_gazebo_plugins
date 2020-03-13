@@ -24,8 +24,7 @@
 #include <dynamic_reconfigure/server.h>
 
 // Auto-generated from cfg/ directory.
-//TODO check why this is generated inside this folder and not in the build folder
-#include "../../cfg/cpp/rosee_gazebo_plugins/pidConfig.h"
+#include <rosee_gazebo_plugins/pidConfig.h>
 
 #include <yaml-cpp/yaml.h>
 #include <ROSEndEffector/Utils.h>

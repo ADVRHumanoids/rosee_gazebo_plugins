@@ -33,8 +33,6 @@
 
 *.kdev4
 *.kate-swp
-build/
 
-# dyn reconf generated files
-cfg/cpp
-docs
+# rqt perspective
+*.perspective
