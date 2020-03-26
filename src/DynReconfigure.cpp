@@ -55,8 +55,11 @@ int main(int argc, char **argv) {
 
 bool ROSEE::DynReconfigure::parseControllersName (std::string robotName, std::vector<std::string> &controllersName) {
     
-    //TODO USE THE ORIGINAL UTILS FROM ROSEE
-    std::string dirPath = ROSEE::Utils::getPackagePath() + "configs/" + robotName + "_control.yaml" ;
+    //TODO USE THE ORIGINAL UTILS FROM ROSEE or not?
+    // Not! because it returns the path of ros_end_effector package, not the gazebo package
+    boost::filesystem::path path(__FILE__);
+    path.remove_filename();
+    std::string dirPath = path.string() + "/../" + "configs/" + robotName + "_control.yaml" ;
     std::ifstream ifile ( dirPath );
     if (! ifile) {
         ROS_ERROR_STREAM ( "[ERROR gazebo plugin]: file " << dirPath << " not found. " );

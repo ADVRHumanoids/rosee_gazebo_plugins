@@ -8,7 +8,7 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
      // Safety check
     if (_model->GetJointCount() == 0)
     {
-        std::cerr << "[ERROR gazebo plugin] Invalid joint count, it is zero! " << std::endl;
+        std::cout << "[ERROR gazebo plugin] Invalid joint count, it is zero! " << std::endl;
         return;
     }
 
@@ -36,6 +36,7 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     // Create our ROS node. 
     this->rosNode.reset(new ros::NodeHandle("rosee_gazebo_plugin"));
 
+
     // Create a named topic, and subscribe to it.
     //TODO take namespace from somewhere
     ros::SubscribeOptions so =
@@ -48,14 +49,16 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     
     rosPub = rosNode->advertise < sensor_msgs::JointState > ( "joint_states", 1 ) ;
 
-
     // Spin up the queue helper thread.
     double rate = 0.0;
     if (! rosNode->getParam("/rate", rate)){
         ROS_INFO_STREAM ("Ros parameter for rate not found, I'm setting the default rate of 100 Hz");
         rate = 100.0;
     }
+
     this->rosQueueThread = std::thread(std::bind(&RoseePlugin::QueueThread, this, rate));
+
+
 }
 
 
@@ -64,14 +67,14 @@ void gazebo::RoseePlugin::QueueThread(double rate) {
     while (this->rosNode->ok()) {
         
         //TODO check the order of this three function
-        
-        pubJointState();
 
+        pubJointState();
         // see if some messages for subs have arrived
         this->rosQueue.callAvailable(ros::WallDuration());
-        
+
         updatePIDfromParam();
         
+
         setReference();
         
         r.sleep();
@@ -82,7 +85,10 @@ void gazebo::RoseePlugin::QueueThread(double rate) {
 bool gazebo::RoseePlugin::parseControllerConfig() {
     
     //TODO USE THE ORIGINAL UTILS FROM ROSEE or not?
-    std::string dirPath = ROSEE::Utils::getPackagePath() + "configs/" + model->GetName() + "_control.yaml" ;
+    // Not! because it returns the path of ros_end_effector package, not the gazebo package
+    boost::filesystem::path path(__FILE__);
+    path.remove_filename();
+    std::string dirPath = path.string() + "/../" + "configs/" + model->GetName() + "_control.yaml" ;
     std::ifstream ifile ( dirPath );
     if (! ifile) {
         ROS_ERROR_STREAM ("[ERROR gazebo plugin]: file " << dirPath << " not found. ");
