@@ -2,7 +2,7 @@
 
 void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 {
-    std::cout << "The test_ee_plugin plugin is attach to model '" <<
+    std::cout << "The RoseePlugin plugin is attach to model '" <<
         _model->GetName() << "'" << std::endl;
         
      // Safety check

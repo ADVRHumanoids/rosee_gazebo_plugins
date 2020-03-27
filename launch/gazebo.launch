@@ -5,7 +5,7 @@
     <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(find rosee_gazebo_plugins)/worlds/rosee.world"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
-        <arg name="paused" value="false"/>
+        <arg name="paused" value="true"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="true"/>
         <arg name="recording" value="false"/>
@@ -23,6 +23,6 @@
     <rosparam param="rosee_gazebo_plugin" file="$(find rosee_gazebo_plugins)/configs/$(arg hand_name)_control.yaml" /> 
 
     <!-- Spawn a robot into Gazebo   -->
-    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find ros_end_effector)/configs/urdf/$(arg hand_name).urdf -urdf -z 1 -model $(arg hand_name)" />
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find ros_end_effector)/configs/urdf/$(arg hand_name).urdf -urdf -z 0 -model $(arg hand_name)" />
 
 </launch>
