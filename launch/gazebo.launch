@@ -25,6 +25,6 @@
     <!-- Spawn a robot into Gazebo   -->
     <!-- NOTE: z position > 0 is necessary because some models move alone if it is 0. This may be caused by
          compenetration with the floor?-->
-    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find ros_end_effector)/configs/urdf/$(arg hand_name).urdf -urdf -z 0.1 -model $(arg hand_name)" />
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find ros_end_effector)/configs/urdf/$(arg hand_name).urdf -urdf -z 1 -model $(arg hand_name)" />
 
 </launch>
