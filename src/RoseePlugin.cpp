@@ -41,7 +41,7 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     //TODO take namespace from somewhere
     ros::SubscribeOptions so =
         ros::SubscribeOptions::create<sensor_msgs::JointState>(
-        "/ros_end_effector/joint_states",
+        "/ros_end_effector/joint_commands",
         1,
         boost::bind(&RoseePlugin::jointStateClbk, this, _1),
         ros::VoidPtr(), &this->rosQueue);
