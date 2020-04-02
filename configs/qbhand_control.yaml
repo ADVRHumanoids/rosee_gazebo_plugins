@@ -6,4 +6,4 @@ qbhand: #robot name
   qbhand_synergy_joint:
     type: JointPositionController
     joint_name: qbhand_synergy_joint
-    pid: {p: 0.0000000001, i: 0.00000000001, d: 0.00000000005}
+    pid: {p: 0.0000005, i: 0.0000001, d: 0.00000005}
