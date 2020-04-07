@@ -98,7 +98,7 @@ bool gazebo::RoseePlugin::parseControllerConfig() {
     YAML::Node node = YAML::LoadFile(dirPath);
     
     if ( ! node[model->GetName()] ) {
-        ROS_ERROR_STREAM ("[ERROR gazebo plugin]: " << model->GetName() << " not found in the config file " << "two_finger_control.yaml" );
+        ROS_ERROR_STREAM ("[ERROR gazebo plugin]: " << model->GetName() << " not found in the config file " << dirPath );
             return false;
     }
     
