@@ -93,6 +93,9 @@ bool gazebo::RoseePlugin::parseControllerConfig() {
     if (! ifile) {
         ROS_ERROR_STREAM ("[ERROR gazebo plugin]: file " << dirPath << " not found. ");
             return false;
+            
+    } else { 
+        ROS_INFO ("[Gazebo plugin]: parsed controller config file from " << dirPath);
     }
     
     YAML::Node node = YAML::LoadFile(dirPath);
