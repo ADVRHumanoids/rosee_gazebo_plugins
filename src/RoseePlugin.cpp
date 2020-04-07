@@ -95,7 +95,7 @@ bool gazebo::RoseePlugin::parseControllerConfig() {
             return false;
             
     } else { 
-        ROS_INFO ("[Gazebo plugin]: parsed controller config file from " << dirPath);
+        ROS_INFO_STREAM ("[Gazebo plugin]: parsed controller config file from " << dirPath);
     }
     
     YAML::Node node = YAML::LoadFile(dirPath);
