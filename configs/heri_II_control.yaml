@@ -2,7 +2,7 @@
 # the one used by "official" ros plugin http://gazebosim.org/tutorials/?tut=ros_control
 #WARNING: DO NOT USE TAB FOR IDENT YAML FILE: This is not permitted by the YAML spec
 
-heri_real: #robot name
+heri_II: #robot name
   #Controller for each joint. type now is only JointPositionControllerfor JointVelocityController
   SFB1__SFP1_1_position_controller:
     type: JointPositionController
@@ -17,5 +17,10 @@ heri_real: #robot name
   LFB2__LFP2_1_position_controller:
     type: JointPositionController
     joint_name: LFB2__LFP2_1
+    pid: {p: 0.3, i: 0.001, d: 0.00005}
+    
+  LFB3__LFP3_1_position_controller:
+    type: JointPositionController
+    joint_name: LFB3__LFP3_1
     pid: {p: 0.3, i: 0.001, d: 0.00005}
     
