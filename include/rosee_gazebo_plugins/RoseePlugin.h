@@ -13,8 +13,8 @@
 #include <gazebo/physics/physics.hh>
 
 #include <yaml-cpp/yaml.h>
-#include <ROSEndEffector/Utils.h>
-
+//to find relative path for the config files
+#include <boost/filesystem/path.hpp>
 namespace gazebo
 {
     /**

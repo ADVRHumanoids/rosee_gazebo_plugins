@@ -27,7 +27,8 @@
 #include <rosee_gazebo_plugins/pidConfig.h>
 
 #include <yaml-cpp/yaml.h>
-#include <ROSEndEffector/Utils.h>
+//to find relative path for the config files
+#include <boost/filesystem/path.hpp>
 
 /**
  * @brief main to handle the ros node dynamic_reconfigure  

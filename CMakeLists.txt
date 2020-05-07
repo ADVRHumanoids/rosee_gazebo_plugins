@@ -16,7 +16,6 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 find_package(gazebo REQUIRED)
-find_package(ros_end_effector REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -107,8 +106,7 @@ include_directories(${dynamic_reconfigure_PACKAGE_PATH}/cmake/cfgbuild.cmake)
 catkin_package(
 #   INCLUDE_DIRS include
 #   LIBRARIES rosee_gazebo_plugins
-   CATKIN_DEPENDS ros_end_effector
-                  dynamic_reconfigure
+   CATKIN_DEPENDS dynamic_reconfigure
    DEPENDS gazebo_ros
 )
 
@@ -124,7 +122,6 @@ include_directories( include
     ${SDFormat_INCLUDE_DIRS}
     ${roscpp_INCLUDE_DIRS}
     ${std_msgs_INCLUDE_DIRS}
-    ${ros_end_effector_INCLUDE_DIRS}
 )
 link_directories(${GAZEBO_LIBRARY_DIRS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
