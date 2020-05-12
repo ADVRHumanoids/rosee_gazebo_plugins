@@ -1,9 +1,0 @@
-# YAML config file for rosee_plugin control for gazebo. Similar syntax to
-# the one used by "official" ros plugin http://gazebosim.org/tutorials/?tut=ros_control
-#WARNING: DO NOT USE TAB FOR IDENT YAML FILE: This is not permitted by the YAML spec
-robotiq_2f_140: #robot name
-  #Controller for each joint. type now is only JointPositionControllerfor JointVelocityController
-  finger_joint_controller:
-    type: JointPositionController
-    joint_name: finger_joint
-    pid: {p: 0.1, i: 0.05, d: 0.01}

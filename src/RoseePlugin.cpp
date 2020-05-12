@@ -16,15 +16,7 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     this->model = _model;
     //store all joints.. note that also fixed joints are stored
     joints = model->GetJoints();
-
-    if (! parseControllerConfig() ) {
-        return;
-    }
-
-    if (! setPIDs() ) {
-        return;
-    }
-
+    
     // Initialize ros, if it has not already been initialized.
     if (!ros::isInitialized())
     {
@@ -35,6 +27,16 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 
     // Create our ROS node. 
     this->rosNode.reset(new ros::NodeHandle("rosee_gazebo_plugin"));
+
+    if (! parseControllerConfig() ) {
+        return;
+    }
+
+    if (! setPIDs() ) {
+        return;
+    }
+
+
 
 
     // Create a named topic, and subscribe to it.
@@ -84,28 +86,22 @@ void gazebo::RoseePlugin::QueueThread(double rate) {
 
 bool gazebo::RoseePlugin::parseControllerConfig() {
     
-    //TODO USE THE ORIGINAL UTILS FROM ROSEE or not?
-    // Not! because it returns the path of ros_end_effector package, not the gazebo package
-    boost::filesystem::path path(__FILE__);
-    path.remove_filename();
-    std::string dirPath = path.string() + "/../" + "configs/" + model->GetName() + "_control.yaml" ;
-    std::ifstream ifile ( dirPath );
-    if (! ifile) {
-        ROS_ERROR_STREAM ("[ERROR gazebo plugin]: file " << dirPath << " not found. ");
-            return false;
-            
-    } else { 
-        ROS_INFO_STREAM ("[Gazebo plugin]: parsed controller config file from " << dirPath);
+    std::string configFileName;
+    
+    if (! rosNode->getParam("/ros_ee_config_path", configFileName) ) {
+        ROS_ERROR_STREAM ("[ERROR gazebo plugin]: parameter '/ros_ee_config_path'" <<
+            " not loaded on parameter server");
+        return false;
     }
     
-    YAML::Node node = YAML::LoadFile(dirPath);
+    YAML::Node node = YAML::LoadFile(configFileName);
     
-    if ( ! node[model->GetName()] ) {
-        ROS_ERROR_STREAM ("[ERROR gazebo plugin]: " << model->GetName() << " not found in the config file " << dirPath );
+    if ( ! node["rosee_gazebo_plugins_args"] ) {
+        ROS_ERROR_STREAM ("[ERROR gazebo plugin]: Not found the node 'rosee_gazebo_plugins_args' not found in the config file '" << configFileName << "' , or the file is missing" );
             return false;
     }
     
-    for ( auto controller: node[model->GetName()] ) {
+    for ( auto controller: node["rosee_gazebo_plugins_args"] ) {
         JointControllerConfig jcf;
         jcf.name = controller.first.as<std::string>();
         jcf.type = controller.second["type"].as<std::string>();
@@ -119,6 +115,15 @@ bool gazebo::RoseePlugin::parseControllerConfig() {
             << " are present in the config file " <<  model->GetName() + "_control.yaml" );
             return false;
         }
+
+        
+        //Set the pid on the param server, this is needed by dynamic reconfigure server
+ 
+        std::string rootNameParam = "/rosee_gazebo_plugins/rosee_gazebo_plugins_args/" ;
+
+        rosNode->setParam ( rootNameParam + jcf.name + "/pid/p", jcf.p );
+        rosNode->setParam ( rootNameParam + jcf.name + "/pid/i", jcf.i );
+        rosNode->setParam ( rootNameParam + jcf.name + "/pid/d", jcf.d );
     }
     
     return true;
@@ -224,17 +229,20 @@ void gazebo::RoseePlugin::updatePIDfromParam() {
     for (auto & contrConf : jointControllersConfigsMap ) {
         
         double p, i, d;
-        std::string paramName = "/rosee_gazebo_plugin/" + model->GetName() + "/" + contrConf.second.name + "/pid" ;
-        if ( rosNode->getParam ( (paramName + "/p"), p ) ) {
-        } else {
+        std::string paramName = "/rosee_gazebo_plugins/rosee_gazebo_plugins_args/" + contrConf.second.name + "/pid" ;
+        
+        if ( ! rosNode->getParam ( (paramName + "/p"), p ) ) {
+        
             ROS_WARN_STREAM ( "[WARNING gazebo plugin] param " << ( paramName + "/p")  << " not loaded on parameter server" );
         }
-        if ( rosNode->getParam ( (paramName + "/i"), i ) ) {
-        } else {
+        
+        if ( ! rosNode->getParam ( (paramName + "/i"), i ) ) {
+      
             ROS_WARN_STREAM ( "[WARNING gazebo plugin] param " << ( paramName + "/i")  << " not loaded on parameter server" );
         }
-        if ( rosNode->getParam ( (paramName + "/d"), d ) ) {
-        } else {
+        
+        if ( ! rosNode->getParam ( (paramName + "/d"), d ) ) {
+
             ROS_WARN_STREAM ( "[WARNING gazebo plugin] param " << ( paramName + "/d")  << " not loaded on parameter server" );
         }
         
