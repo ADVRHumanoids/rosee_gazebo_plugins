@@ -18,7 +18,7 @@
 
 int main(int argc, char **argv) { 
     
-    ros::init(argc, argv, "rosee_gazebo_plugin_DynReconfigure");
+    ros::init(argc, argv, "rosee_gazebo_plugins_DynReconfigure");
     ros::NodeHandle rosNode("rosee_gazebo_plugin_DynReconfigure");
 
     if (argc < 2) {
@@ -38,13 +38,13 @@ int main(int argc, char **argv) {
 
     for (auto controller : controllersName) {
         
-        ros::NodeHandle nh ("/rosee_gazebo_plugins/rosee_gazebo_plugins_args/" + controller + "/pid") ;
+        ros::NodeHandle nh ("/rosee_gazebo_plugins/params/" + controller + "/pid") ;
         std::shared_ptr <dynamic_reconfigure::Server<rosee_gazebo_plugins::pidConfig> > dr_srv_ptr = 
            std::make_shared <dynamic_reconfigure::Server<rosee_gazebo_plugins::pidConfig>> ( nh ) ;
         
         dynamic_reconfigure::Server<rosee_gazebo_plugins::pidConfig>::CallbackType cb;
         cb = boost::bind(&ROSEE::DynReconfigure::pidCfgClbk, _1, _2, 
-                         "/rosee_gazebo_plugins/rosee_gazebo_plugins_args/" + controller + "/pid");
+                         "/rosee_gazebo_plugins/params/" + controller + "/pid");
         dr_srv_ptr->setCallback(cb);
         drVector.push_back ( dr_srv_ptr );
 

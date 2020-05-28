@@ -26,7 +26,7 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     }
 
     // Create our ROS node. 
-    this->rosNode.reset(new ros::NodeHandle("rosee_gazebo_plugin"));
+    this->rosNode.reset(new ros::NodeHandle("rosee_gazebo_plugins"));
 
     if (! parseControllerConfig() ) {
         return;
@@ -119,7 +119,7 @@ bool gazebo::RoseePlugin::parseControllerConfig() {
         
         //Set the pid on the param server, this is needed by dynamic reconfigure server
  
-        std::string rootNameParam = "/rosee_gazebo_plugins/rosee_gazebo_plugins_args/" ;
+        std::string rootNameParam = "/rosee_gazebo_plugins/params/" ;
 
         rosNode->setParam ( rootNameParam + jcf.name + "/pid/p", jcf.p );
         rosNode->setParam ( rootNameParam + jcf.name + "/pid/i", jcf.i );
@@ -209,12 +209,12 @@ void gazebo::RoseePlugin::setReference (  )
                 scopedJointName, jointStateMsg.velocity.at ( i ) );
             
         } else if ( it->second.type.compare ("JointEffortController") == 0 ) {
-            // should have checked this error before in parseControllerConfig
+            // should have checked this error before in setPIDs
             ROS_ERROR_STREAM ( "JointEffortController still not implememnted" );
             return;
             
         } else {
-            // should have checked this error before in parseControllerConfig
+            // should have checked this error before in setPIDs
             ROS_ERROR_STREAM ("[ERROR gazebo plugin]:  Controller " << it->first << " is of type " << it->second.type
                 << " which I don't recognize " );
             return;
@@ -229,7 +229,7 @@ void gazebo::RoseePlugin::updatePIDfromParam() {
     for (auto & contrConf : jointControllersConfigsMap ) {
         
         double p, i, d;
-        std::string paramName = "/rosee_gazebo_plugins/rosee_gazebo_plugins_args/" + contrConf.second.name + "/pid" ;
+        std::string paramName = "/rosee_gazebo_plugins/params/" + contrConf.second.name + "/pid" ;
         
         if ( ! rosNode->getParam ( (paramName + "/p"), p ) ) {
         
