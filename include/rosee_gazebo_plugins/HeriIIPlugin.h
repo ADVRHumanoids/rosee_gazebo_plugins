@@ -7,6 +7,9 @@
 #include <gazebo/common/common.hh>
 #include <stdio.h>
 
+#include <rosee_gazebo_plugins/JointDeltAngle.h>
+#include <rosee_gazebo_plugins/JointMechanism.h>
+
 namespace gazebo
 {
     /**
@@ -40,6 +43,11 @@ namespace gazebo
 
         // Pointer to the update event connection
         event::ConnectionPtr updateConnection;
+        
+        JointDeltAngle JDA;
+        
+        std::map<std::string, double> moto_current_map;
+        std::map<std::string, std::vector<std::string>> moto_fingerJoints_map;
         
   };
 

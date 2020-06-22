@@ -7,12 +7,13 @@ void gazebo::HeriIIPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
     this->model = _parent;
     
     // Error message if the model couldn't be found
-    if (!model_) {
+    if (!model) {
         std::cout << "Model is NULL! HeriIIPlugin could not be loaded.");
         return;
     
     }
     
+
     
     
     // Listen to the update event. This event is broadcast every
@@ -24,8 +25,23 @@ void gazebo::HeriIIPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
     
 void gazebo::HeriIIPlugin::OnUpdate()
 {
-    model->GetJoint("LFB1__LFP2_1")->SetPosition()
-    ...
+    
+    for (auto it : moto_current_map) {
+        
+        double current = it.second;
+        
+        double Joint1_DeltAngle = JDA.DeltAngle_Join1(current);
+        double Joint2_DeltAngle = JDA.DeltAngle_Join2(current);
+        double Joint3_DeltAngle = JDA.DeltAngle_Join3(current);
+    
+        std::vectors<std::string> joints = moto_fingerJoints_map.at(it.first);
+        
+        //HACK be sure joints are in order
+        for (auto joint : joints) {
+            model->GetJoint(joint)->SetPosition(Joint1_DeltAngle);
+            //TODO
+        }
+    }
 }
 
 //TODO
