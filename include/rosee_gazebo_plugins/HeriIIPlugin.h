@@ -2,9 +2,11 @@
 #define _HERI_II_PLUGIN_HH_
 
 #include <boost/bind.hpp>
+
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/common/common.hh>
+
 #include <stdio.h>
 #include <yaml-cpp/yaml.h>
 
@@ -58,6 +60,11 @@ namespace gazebo
         
         std::map<std::string, double> moto_current_map;
         std::map<std::string, std::vector<std::string>> moto_fingerJoints_map;
+        
+        //Parameters to transform current in force applied to the tendon. 
+        double torque_constant;         //Torque contant of motor. DCX22S GB KL 48V.
+        double gear_ratio;                   //GPX22HP 138.
+        double efficiency;                 //The maximum efficieny of gear box is 0.88.
         
         void currentCommandClbk(const rosee_msg::MotorCurrentConstPtr& msg);
 

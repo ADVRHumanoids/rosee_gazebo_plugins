@@ -50,9 +50,13 @@ void gazebo::HeriIIPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
         moto_fingerJoints_map[motor_name] = associatedJoints;
     }
     
-    
     //TODO take this from some config file or launch file?
     std::string currentTopic = "/rosee_gazebo_plugins/motor_current_command";
+    
+    //TODO take this from conf file, and use different params for different motors?
+    torque_constant = 0.0418;          //Torque contant of motor. DCX22S GB KL 48V.
+    gear_ratio = 139;                   //GPX22HP 138.
+    efficiency = 0.85;                 //The maximum efficieny of gear box is 0.88.
     
     rosSub = rosNode->subscribe(currentTopic, 1, &gazebo::HeriIIPlugin::currentCommandClbk, this);
     
@@ -61,21 +65,16 @@ void gazebo::HeriIIPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
     this->updateConnection = event::Events::ConnectWorldUpdateBegin(
         boost::bind(&HeriIIPlugin::OnUpdate, this));
     
-
-
 }
     
 void gazebo::HeriIIPlugin::OnUpdate()
 {
-        
+    
     for (auto it : moto_current_map) {
         
         double current = it.second;
-        const double torque_constant = 0.0418;          //Torque contant of motor. DCX22S GB KL 48V.
-        const double gear_ratio = 139;                   //GPX22HP 138.
-        const double efficiency = 0.85;                 //The maximum efficieny of gear box is 0.88.
 
-        double force = (current * torque_constant * gear_ratio * efficiency) / 0.008; 
+        double force = (current * torque_constant * gear_ratio * efficiency) / 0.008; //0.008 is the radius of the pulley (torque to force "conversion")
         std::vector<std::string> joints = moto_fingerJoints_map.at(it.first);
 
         double joint_DeltAngle[joints.size()];
@@ -89,7 +88,7 @@ void gazebo::HeriIIPlugin::OnUpdate()
         //Be sure joints in the map are in order
         int i = 0;
         for (auto joint : joints) {
-            model->GetJoint(joint)->SetPosition(0, joint_DeltAngle[i]); //0 is the joint axis
+            model->GetJoint(joint)->SetPosition(0, joint_DeltAngle[i] ); //0 is the joint axis
             i++;
         }
     }
