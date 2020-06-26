@@ -1,6 +1,3 @@
-#include <iostream>
-#include <math.h>
-#include <rosee_gazebo_plugins/JointMechanism.h>
 #include <rosee_gazebo_plugins/JointDeltAngle.h>
 
 JointDeltAngle::JointDeltAngle()

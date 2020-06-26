@@ -6,9 +6,13 @@
 #include <gazebo/physics/physics.hh>
 #include <gazebo/common/common.hh>
 #include <stdio.h>
+#include <yaml-cpp/yaml.h>
+
+#include <ros/ros.h>
+#include <ros/console.h>
+#include <rosee_msg/MotorCurrent.h>
 
 #include <rosee_gazebo_plugins/JointDeltAngle.h>
-#include <rosee_gazebo_plugins/JointMechanism.h>
 
 namespace gazebo
 {
@@ -44,10 +48,19 @@ namespace gazebo
         // Pointer to the update event connection
         event::ConnectionPtr updateConnection;
         
+        /// \brief A node use for ROS transport
+        std::unique_ptr<ros::NodeHandle> rosNode;
+        
+        /// \brief A ROS subscriber
+        ros::Subscriber rosSub;
+        
         JointDeltAngle JDA;
         
         std::map<std::string, double> moto_current_map;
         std::map<std::string, std::vector<std::string>> moto_fingerJoints_map;
+        
+        void currentCommandClbk(const rosee_msg::MotorCurrentConstPtr& msg);
+
         
   };
 

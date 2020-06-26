@@ -1,6 +1,13 @@
 #ifndef _JOINTMECHANISM_H_
 #define _JOINTMECHANISM_H_
 
+#include <iostream>
+#include <math.h>
+
+/**
+ * Credits to @EvanZhangYifang
+ */
+
 class JointMechanism
 {
 private:

@@ -1,6 +1,13 @@
 #ifndef __JOINTDELTANGLE_H_
 #define __JOINTDELTANGLE_H_
 
+#include <iostream>
+#include <math.h>
+#include <rosee_gazebo_plugins/JointMechanism.h>
+
+/**
+ * Credits to @EvanZhangYifang
+ */
 class JointDeltAngle
 {
 private:

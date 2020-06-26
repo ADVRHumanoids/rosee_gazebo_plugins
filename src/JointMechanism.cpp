@@ -1,5 +1,3 @@
-#include <iostream>
-#include <math.h>
 #include <rosee_gazebo_plugins/JointMechanism.h>
 
 using namespace std;
