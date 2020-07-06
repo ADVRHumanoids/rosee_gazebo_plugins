@@ -170,7 +170,12 @@ void gazebo::RoseePlugin::pubJointState ( ) {
     msg.header.stamp = ros::Time::now();
 
     for ( auto joint : joints ) {
-        //TODO also mimic are returned... leave as it is?
+        
+        //HACK TODO I do not know why but fixed joint is seen as the other revolute
+        if (joint->GetName().compare("world_base") == 0) {
+            continue;
+        }
+        
         //type of joint is a sum: so fixed is joint+fixed_joint (0x4000 + 0x40 = 0x4040)
         if (joint->GetType() != 
                 (gazebo::physics::Entity::JOINT + gazebo::physics::Entity::FIXED_JOINT) ) {
