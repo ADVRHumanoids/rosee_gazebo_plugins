@@ -43,7 +43,7 @@ void gazebo::HeriIIPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
         associatedJoints.push_back(values["joint_1"].as<std::string>());
         associatedJoints.push_back(values["joint_2"].as<std::string>());
         
-        if (values["joint_3"].Type() != YAML::NodeType::value::Null ) { //no 3rd phalange for thumb
+        if (values["joint_3"]) { //no 3rd phalange for thumb
             associatedJoints.push_back(values["joint_3"].as<std::string>());
         }
 
