@@ -12,7 +12,7 @@
 
 #include <ros/ros.h>
 #include <ros/console.h>
-#include <sensor_msgs/JointState.h>
+#include <rosee_msg/MotorCurrent.h>
 
 #include <rosee_gazebo_plugins/JointDeltAngle.h>
 
@@ -44,20 +44,6 @@ namespace gazebo
      
     private:
         
-        struct Motor {
-            std::string name;
-            std::vector<std::string> linked_joints;
-            double K_t;
-            double K_p;
-            double r;
-            double R_M;
-            double theta;
-            double theta_d;
-            double F_tendon;
-        } ;
-        
-        std::map <std::string, Motor> motors_map;
-        
         // Pointer to the model
         physics::ModelPtr model;
 
@@ -72,19 +58,15 @@ namespace gazebo
         
         JointDeltAngle JDA;
         
-        //association of each motor to name of the joints of the finger
-        //std::map<std::string, std::vector<std::string>> moto_fingerJoints_map;
-
-        //the actual motor position. If real hw is used, we should get this from real hw
-       // std::map<std::string, double> motors_position;
-        //std::map<std::string, double> motors_position_command;
+        std::map<std::string, double> moto_current_map;
+        std::map<std::string, std::vector<std::string>> moto_fingerJoints_map;
         
         //Parameters to transform current in force applied to the tendon. 
-        //double torque_constant;         //Torque contant of motor. DCX22S GB KL 48V.
-       // double gear_ratio;                   //GPX22HP 138.
-        //double efficiency;                 //The maximum efficieny of gear box is 0.88.
+        double torque_constant;         //Torque contant of motor. DCX22S GB KL 48V.
+        double gear_ratio;                   //GPX22HP 138.
+        double efficiency;                 //The maximum efficieny of gear box is 0.88.
         
-        void motorCommandClbk(const sensor_msgs::JointStateConstPtr& msg);
+        void currentCommandClbk(const rosee_msg::MotorCurrentConstPtr& msg);
 
         
   };

@@ -35,13 +35,9 @@ void gazebo::HeriIIPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
     YAML::Node node = YAML::LoadFile(configFileName);
 
-    //TODO check if info are present in yaml?
     for(YAML::const_iterator moto_it = node["Motor_actuation_info"].begin(); moto_it != node["Motor_actuation_info"].end(); ++moto_it) {
         
-        Motor motor;
-        
-        motor.name = moto_it->first.as<std::string>();
-        
+        std::string motor_name = moto_it->first.as<std::string>();
         auto values = moto_it->second;
         std::vector <std::string> associatedJoints;
         associatedJoints.push_back(values["joint_1"].as<std::string>());
@@ -50,25 +46,19 @@ void gazebo::HeriIIPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
         if (values["joint_3"]) { //no 3rd phalange for thumb
             associatedJoints.push_back(values["joint_3"].as<std::string>());
         }
-        
-        motor.linked_joints = associatedJoints;
-        motor.theta = values["theta"] ? values["theta"].as<double>() : 0 ;
-        motor.K_t = values["K_t"].as<double>();
-        motor.K_p = values["K_p"].as<double>();
-        motor.r = values["r"].as<double>();
-        motor.R_M = values["R_M"].as<double>();
-        
-        motors_map [motor.name] = motor;
 
+        moto_fingerJoints_map[motor_name] = associatedJoints;
     }
     
-    
     //TODO take this from some config file or launch file?
-    //it is named joint_commands but in truth motor position commands are sent
-    std::string commandTopic = "/ros_end_effector/joint_commands";
+    std::string currentTopic = "/rosee_gazebo_plugins/motor_current_command";
     
+    //TODO take this from conf file, and use different params for different motors?
+    torque_constant = 0.0418;          //Torque contant of motor. DCX22S GB KL 48V.
+    gear_ratio = 139;                   //GPX22HP 138.
+    efficiency = 0.85;                 //The maximum efficieny of gear box is 0.88.
     
-    rosSub = rosNode->subscribe(commandTopic, 1, &gazebo::HeriIIPlugin::motorCommandClbk, this);
+    rosSub = rosNode->subscribe(currentTopic, 1, &gazebo::HeriIIPlugin::currentCommandClbk, this);
     
     // Listen to the update event. This event is broadcast every
     // simulation iteration.
@@ -80,12 +70,11 @@ void gazebo::HeriIIPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 void gazebo::HeriIIPlugin::OnUpdate()
 {
     
-    for (auto it : motors_position_command) {
+    for (auto it : moto_current_map) {
         
-        double theta_d = it.second;
-        double theta = motors_position.at(it.first);
+        double current = it.second;
 
-        double f_tendon = (current * torque_constant * gear_ratio * efficiency) / 0.008; //0.008 is the radius of the pulley (torque to force "conversion")
+        double force = (current * torque_constant * gear_ratio * efficiency) / 0.008; //0.008 is the radius of the pulley (torque to force "conversion")
         std::vector<std::string> joints = moto_fingerJoints_map.at(it.first);
 
         double joint_DeltAngle[joints.size()];
@@ -102,18 +91,14 @@ void gazebo::HeriIIPlugin::OnUpdate()
             model->GetJoint(joint)->SetPosition(0, joint_DeltAngle[i] ); //0 is the joint axis
             i++;
         }
-        
-        //TODO if only simulation, we set the actual motor pos as the desired one
-        // if real hardware is in use, we should take this info from the real hardware
-        motors_position.at(it.first) = theta_d;
     }
 }
 
-void gazebo::HeriIIPlugin::motorCommandClbk(const sensor_msgs::JointStateConstPtr& msg) {
+void gazebo::HeriIIPlugin::currentCommandClbk(const rosee_msg::MotorCurrentConstPtr& msg) {
     
-    for (int i = 0; i < msg->name.size(); i++) { 
+    for (int i = 0; i < msg->motor_name.size(); i++) { 
 
-        motors_position_command [msg->name.at(i)] = msg->position.at(i);
+        moto_current_map [msg->motor_name.at(i)] = msg->current.at(i);
     }
     
 }
