@@ -76,7 +76,6 @@ void gazebo::RoseePlugin::QueueThread(double rate) {
 
         updatePIDfromParam();
         
-
         setReference();
         
         r.sleep();

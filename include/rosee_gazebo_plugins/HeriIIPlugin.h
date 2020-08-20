@@ -72,22 +72,15 @@ namespace gazebo
         
         /// \brief A ROS subscriber
         ros::Subscriber rosSub;
+        ros::Publisher rosPub;
         
         JointDeltAngle JDA;
         
-        //association of each motor to name of the joints of the finger
-        //std::map<std::string, std::vector<std::string>> moto_fingerJoints_map;
-
-        //the actual motor position. If real hw is used, we should get this from real hw
-       // std::map<std::string, double> motors_position;
-        //std::map<std::string, double> motors_position_command;
-        
-        //Parameters to transform current in force applied to the tendon. 
-        //double torque_constant;         //Torque contant of motor. DCX22S GB KL 48V.
-       // double gear_ratio;                   //GPX22HP 138.
-        //double efficiency;                 //The maximum efficieny of gear box is 0.88.
-        
+        bool newCommand;
         void motorCommandClbk(const sensor_msgs::JointStateConstPtr& msg);
+        
+        void pubJointStates();
+
 
         
   };
