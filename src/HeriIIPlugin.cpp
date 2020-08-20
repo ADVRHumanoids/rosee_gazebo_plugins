@@ -38,27 +38,38 @@ void gazebo::HeriIIPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
     //TODO check if info are present in yaml?
     for(YAML::const_iterator moto_it = node["Motor_actuation_info"].begin(); moto_it != node["Motor_actuation_info"].end(); ++moto_it) {
         
-        Motor motor;
-        
-        motor.name = moto_it->first.as<std::string>();
-        
         auto values = moto_it->second;
+        
         std::vector <std::string> associatedJoints;
         associatedJoints.push_back(values["joint_1"].as<std::string>());
         associatedJoints.push_back(values["joint_2"].as<std::string>());
-        
         if (values["joint_3"]) { //no 3rd phalange for thumb
             associatedJoints.push_back(values["joint_3"].as<std::string>());
         }
         
-        motor.linked_joints = associatedJoints;
-        motor.theta = values["theta"] ? values["theta"].as<double>() : 0 ;
-        motor.K_t = values["K_t"].as<double>();
-        motor.K_p = values["K_p"].as<double>();
-        motor.r = values["r"].as<double>();
-        motor.R_M = values["R_M"].as<double>();
+        MotorConfig motorConfig {moto_it->first.as<std::string>(), associatedJoints};
+
+        motorConfig.p = values["pid"]["p"].as<double>();
+        motorConfig.i = values["pid"]["i"].as<double>();
+        motorConfig.d = values["pid"]["d"].as<double>();
+        motorConfig.K_t = values["K_t"].as<double>();
+        motorConfig.r = values["r"].as<double>();
+        motorConfig.R_M = values["R_M"].as<double>();
+        motorConfig.G_r = values["G_r"].as<double>();
+        motorConfig.E_e = values["E_e"].as<double>();
         
-        motors_map [motor.name] = motor;
+        if (! model->GetJoint(motorConfig.name) ) {
+             ROS_ERROR_STREAM ("[ERROR HERI gazebo plugin]: motor " << motorConfig.name << 
+                 " not found as a joint in the urdf. You should add it as virtual joint" << 
+                 " so Gazebo can use PID on it");
+             return ;
+        }
+        
+        //gazebo pid to move the motors
+        this->model->GetJointController()->SetPositionPID(
+                model->GetJoint(motorConfig.name)->GetScopedName(), common::PID(motorConfig.p, motorConfig.d, motorConfig.d));
+        
+        motorsConfigs.insert( std::make_pair ( motorConfig.name , motorConfig));
 
     }
     
@@ -79,11 +90,16 @@ void gazebo::HeriIIPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
     
 void gazebo::HeriIIPlugin::OnUpdate()
 {
+    //here we move the finger joints, instead the motor is moved internally by gazebo because 
+    // we have set pid controller for them
     
-    for (auto it : motors_position_command) {
+    for (auto it : motorsPositionCommand) {
         
         double theta_d = it.second;
-        double theta = motors_position.at(it.first);
+        //0: heri motor has always one dof
+        double theta = this->model->GetJoint(it.first)->GetAngle(0).Radian();
+        
+        MotorConfig motorConfig = motorsConfigs.at(it.first);
 
         double f_tendon = (current * torque_constant * gear_ratio * efficiency) / 0.008; //0.008 is the radius of the pulley (torque to force "conversion")
         std::vector<std::string> joints = moto_fingerJoints_map.at(it.first);

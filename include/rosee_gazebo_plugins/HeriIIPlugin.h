@@ -44,19 +44,22 @@ namespace gazebo
      
     private:
         
-        struct Motor {
-            std::string name;
-            std::vector<std::string> linked_joints;
-            double K_t;
-            double K_p;
-            double r;
-            double R_M;
-            double theta;
-            double theta_d;
-            double F_tendon;
+        struct MotorConfig {
+            const std::string name;
+            const std::vector<std::string> linked_joints; //name of joints of the finger
+            double p; //pid gains
+            double i;
+            double d;
+            double K_t; // Torque coefficent of the motor [Nm/A]
+            double r;   // Radius of the pulley [m]
+            double R_M; // Eletrical terminal resistance of the motor [ohm]
+            double G_r;  // Ratio of the gearbox of the motor [adimensional]
+            double E_e; // Efficency of gearhead, 0.9 is the max efficency of the motor [adimensional]
         } ;
         
-        std::map <std::string, Motor> motors_map;
+        std::map <std::string, MotorConfig> motorsConfigs;
+        
+        std::map <std::string, double> motorsPositionCommand;
         
         // Pointer to the model
         physics::ModelPtr model;
