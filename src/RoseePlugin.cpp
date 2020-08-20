@@ -204,6 +204,18 @@ void gazebo::RoseePlugin::setReference (  )
             this->model->GetJointController()->SetPositionTarget (
                 scopedJointName, jointStateMsg.position.at ( i ) );
             
+            
+            //test TODO remove this
+            //auto pidForJoint = this->model->GetJointController()-> GetPositionPIDs().at(scopedJointName);
+            //double ep, ei, ed;
+            //pidForJoint.GetErrors(ep, ei, ed);
+            
+            //ROS_WARN_STREAM("PID " << jointName << "\n  target: " <<  jointStateMsg.position.at ( i )
+            //    << "\n joint pos " << this->model->GetJoint(scopedJointName)->GetAngle(0).Radian()
+            //    << "\n pid cmd: " << pidForJoint.GetCmd()
+            //   << "\n pid errors (p i d) " << ep << " " << ei << " " << ed 
+            //);
+            
         } else if ( it->second.type.compare ("JointVelocityController") == 0) {
             this->model->GetJointController()->SetVelocityTarget (
                 scopedJointName, jointStateMsg.velocity.at ( i ) );
