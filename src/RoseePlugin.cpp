@@ -43,13 +43,13 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     //TODO take namespace from somewhere
     ros::SubscribeOptions so =
         ros::SubscribeOptions::create<sensor_msgs::JointState>(
-        "/ros_end_effector/joint_commands",
+        "/dummyHal/joint_command",
         1,
         boost::bind(&RoseePlugin::jointStateClbk, this, _1),
         ros::VoidPtr(), &this->rosQueue);
     this->rosSub = this->rosNode->subscribe(so);
     
-    rosPub = rosNode->advertise < sensor_msgs::JointState > ( "joint_states", 1 ) ;
+    rosPub = rosNode->advertise < sensor_msgs::JointState > ( "/dummyHal/joint_states", 1 ) ;
 
     // Spin up the queue helper thread.
     double rate = 0.0;
