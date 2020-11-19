@@ -225,12 +225,43 @@ void gazebo::HeriIIPlugin::setReference (  )
     }
 }
 
-void gazebo::HeriIIPlugin::moveCoupledJoints(std::string motorName, double motorRef) {
+
+bool gazebo::HeriIIPlugin::moveCoupledJoints(std::string motorName, double motorRef) {
     
-    //TODO : retrieve pid and associated links from motorconfig of motorName
-    //then move with joindDeltAngle class
+    auto it = motorsConfigMap.find(motorName);
+    if (it == motorsConfigMap.end()) {
+        ROS_ERROR_STREAM("[HERI_II_Plugin: " << __func__ << "] motor name " << motorName << " not found"
+         << "in the motorsConfigMap");
+        return false;
+    }
     
+    MotorConfig motorConfig = it->second;
+    std::string motorScopedName = this->model->GetJoint(motorName)->GetScopedName();
+#if GAZEBO_MAJOR_VERSION >= 8
+    double theta = this->model->GetJoint(motorScopedName)->Position();
+#else
+    double theta = this->model->GetJoint(motorScopedName)->GetAngle(0).Radian();
+#endif  
     
+    double f_tendon = 
+        motorConfig.G_r * motorConfig.E_e * motorConfig.K_t * motorConfig.p * (motorRef - theta)
+        / (motorConfig.r * motorConfig.R_M);
+
+    double jointPos[motorConfig.coupledJointNames.size()];
+    jointPos[0] = jointDeltAngle.DeltAngle_Join1(f_tendon);
+    jointPos[1] = jointDeltAngle.DeltAngle_Join2(f_tendon);
+        
+    if (motorConfig.coupledJointNames.size() > 2 ) { //no 3rd phalange for thumb
+        jointPos[2] = jointDeltAngle.DeltAngle_Join3(f_tendon);
+    } 
+    
+    int i = 0;
+    for (auto joint : motorConfig.coupledJointNames) {
+        model->GetJoint(joint)->SetPosition(0, jointPos[i] ); //0 is the joint axis
+        i++;
+    }
+        
+    return true;
 }
 
 
