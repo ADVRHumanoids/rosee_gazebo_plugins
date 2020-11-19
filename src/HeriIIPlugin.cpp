@@ -196,9 +196,9 @@ void gazebo::HeriIIPlugin::pubJointState ( ) {
 #if GAZEBO_MAJOR_VERSION >= 8
             msg.position.push_back(joint->Position()); //index 0 is the "right" axis
 #else
-             msg.position.push_back(joint->GetAngle(0).Radian()); //index 0 is the "right" axis
+            msg.position.push_back(joint->GetAngle(0).Radian()); //index 0 is the "right" axis
 #endif
-             msg.velocity.push_back(joint->GetVelocity(0)); //index 0 is the "right" axis
+            msg.velocity.push_back(joint->GetVelocity(0)); //index 0 is the "right" axis
             //WARNING getForce not yet implemented in gazebo7, but in the 8?
             msg.effort.push_back(joint->GetForce(0)); //index 0 is the "right" axis
         }
@@ -247,17 +247,30 @@ bool gazebo::HeriIIPlugin::moveCoupledJoints(std::string motorName, double motor
     double theta = this->model->GetJoint(motorScopedName)->GetAngle(0).Radian();
 #endif  
     
+    //TODO
+    // the problem of this is that when motorRef - theta goes toward zero also the f_tendon goes toward 
+    // zero hence the joint pos will go back to zero, hence I have put the hack function
+    
+//     double f_tendon = 
+//         motorConfig.G_r * motorConfig.E_e * motorConfig.K_t * motorConfig.p * (motorRef - theta)
+//         / (motorConfig.r * motorConfig.R_M);
+    
+    //HACK version really wrong
     double f_tendon = 
-        motorConfig.G_r * motorConfig.E_e * motorConfig.K_t * motorConfig.p * (motorRef - theta)
+        motorConfig.G_r * motorConfig.E_e * motorConfig.K_t * motorConfig.p * (0.022 * motorRef)
         / (motorConfig.r * motorConfig.R_M);
 
     double jointPos[motorConfig.coupledJointNames.size()];
     jointPos[0] = jointDeltAngle.DeltAngle_Join1(f_tendon);
-    jointPos[1] = jointDeltAngle.DeltAngle_Join2(f_tendon);
         
-    if (motorConfig.coupledJointNames.size() > 2 ) { //no 3rd phalange for thumb
+    if (motorConfig.coupledJointNames.size() == 2 ) { //no 2nd phalange for thumb
+        jointPos[1] = jointDeltAngle.DeltAngle_Join3(f_tendon);
+        
+    } else  {
+        
+        jointPos[1] = jointDeltAngle.DeltAngle_Join2(f_tendon);
         jointPos[2] = jointDeltAngle.DeltAngle_Join3(f_tendon);
-    } 
+    }
     
     int i = 0;
     for (auto joint : motorConfig.coupledJointNames) {
