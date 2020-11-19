@@ -193,9 +193,13 @@ void gazebo::HeriIIPlugin::pubJointState ( ) {
                 (gazebo::physics::Entity::JOINT + gazebo::physics::Entity::FIXED_JOINT) ) {
             
             msg.name.push_back(joint->GetName());
-            msg.position.push_back(joint->GetAngle(0).Radian()); //index 0 is the "right" axis
-            msg.velocity.push_back(joint->GetVelocity(0)); //index 0 is the "right" axis
-            //WARNING getForce not yet implemented (in gazebo7 is an empty function...)
+#if GAZEBO_MAJOR_VERSION >= 8
+            msg.position.push_back(joint->Position()); //index 0 is the "right" axis
+#else
+             msg.position.push_back(joint->GetAngle(0).Radian()); //index 0 is the "right" axis
+#endif
+             msg.velocity.push_back(joint->GetVelocity(0)); //index 0 is the "right" axis
+            //WARNING getForce not yet implemented in gazebo7, but in the 8?
             msg.effort.push_back(joint->GetForce(0)); //index 0 is the "right" axis
         }
     }
