@@ -75,11 +75,7 @@ namespace gazebo
          */
         void setReference ( );
         
-<<<<<<< HEAD
-        void moveCoupledJoints(std::string motorName, double motorRef);
-=======
         bool moveCoupledJoints(std::string motorName, double motorRef);
->>>>>>> 0e97b60f4bf6e2e12c1d9f8f2fbeb30e25ee9b63
         
         /**
          * @brief PID gains for pos and vel (for now) can be modifed during the execution, updating the parameters on ros server.
