@@ -16,7 +16,6 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 find_package(gazebo REQUIRED)
-find_package(ros_end_effector REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -107,8 +106,7 @@ include_directories(${dynamic_reconfigure_PACKAGE_PATH}/cmake/cfgbuild.cmake)
 catkin_package(
 #   INCLUDE_DIRS include
 #   LIBRARIES rosee_gazebo_plugins
-   CATKIN_DEPENDS ros_end_effector
-                  dynamic_reconfigure
+   CATKIN_DEPENDS dynamic_reconfigure
    DEPENDS gazebo_ros
 )
 
@@ -124,7 +122,6 @@ include_directories( include
     ${SDFormat_INCLUDE_DIRS}
     ${roscpp_INCLUDE_DIRS}
     ${std_msgs_INCLUDE_DIRS}
-    ${ros_end_effector_INCLUDE_DIRS}
 )
 link_directories(${GAZEBO_LIBRARY_DIRS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
@@ -137,6 +134,18 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 # )
 add_library(RoseePlugin SHARED
     src/RoseePlugin.cpp
+)
+
+add_library(HeriIIPlugin SHARED
+    src/HeriIIPlugin.cpp
+)
+add_dependencies(HeriIIPlugin rosee_msg_generate_messages_cpp)
+
+add_library(${PROJECT_NAME}_JointMechanism SHARED
+    src/JointMechanism.cpp
+)
+add_library(${PROJECT_NAME}_JointDeltAngle SHARED
+    src/JointDeltAngle.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -170,6 +179,18 @@ target_link_libraries(RoseePlugin
     ${catkin_LIBRARIES}
     ${roscpp_LIBRARIES}
     yaml-cpp
+)
+
+target_link_libraries(HeriIIPlugin
+    ${GAZEBO_LIBRARIES}
+    ${catkin_LIBRARIES}
+    ${roscpp_LIBRARIES}
+    yaml-cpp
+    ${PROJECT_NAME}_JointDeltAngle
+)
+
+target_link_libraries(${PROJECT_NAME}_JointDeltAngle
+    ${PROJECT_NAME}_JointMechanism
 )
 
 target_link_libraries(DynReconfigure

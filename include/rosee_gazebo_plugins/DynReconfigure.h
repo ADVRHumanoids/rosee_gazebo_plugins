@@ -27,7 +27,8 @@
 #include <rosee_gazebo_plugins/pidConfig.h>
 
 #include <yaml-cpp/yaml.h>
-#include <ROSEndEffector/Utils.h>
+//to find relative path for the config files
+#include <boost/filesystem/path.hpp>
 
 /**
  * @brief main to handle the ros node dynamic_reconfigure  
@@ -38,7 +39,7 @@ int main(int argc, char **argv) ;
 
 namespace ROSEE {
 namespace DynReconfigure {
-
+    
     /**
      * @brief callback for when pids are updated for some controller. It simply print some info messages
      * because the param on the param server are updated by the dynamic_reconfigure server
@@ -52,10 +53,10 @@ namespace DynReconfigure {
      * @brief parse the controller names from the yaml file configs/ROBOTNAME_control.yaml (the same file used by
      * \ref rosee_plugin.cpp ). Names are necessary to "point" to the right param of ros parameter server
      * 
-     * @param robotName (IN) the name of the robot, which is part of filename of yaml file
+     * @param rosNode the nodehandle is used to take the filename of config file from param server
      * @param &controllersName (OUT) vector containing all the controllers name taken from yaml config file
      */
-    bool parseControllersName(std::string robotName, std::vector<std::string> &controllersName) ;
+    bool parseControllersNames ( ros::NodeHandle* rosNode, std::vector<std::string> &controllersName) ;
 
 }
 }

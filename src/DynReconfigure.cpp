@@ -18,8 +18,9 @@
 
 int main(int argc, char **argv) { 
     
-    ros::init(argc, argv, "rosee_gazebo_plugin_DynReconfigure");
-    
+    ros::init(argc, argv, "rosee_gazebo_plugins_DynReconfigure");
+    ros::NodeHandle rosNode("rosee_gazebo_plugin_DynReconfigure");
+
     if (argc < 2) {
         ROS_ERROR_STREAM ( "please insert the robotName as argument" ) ;
         return -1; 
@@ -28,7 +29,7 @@ int main(int argc, char **argv) {
     std::string robotName = argv[1];
     
     std::vector <std::string> controllersName;
-    if (! ROSEE::DynReconfigure::parseControllersName (robotName, controllersName )) {
+    if (! ROSEE::DynReconfigure::parseControllersNames ( &rosNode, controllersName )) {
         return -1;
     }
     
@@ -37,12 +38,13 @@ int main(int argc, char **argv) {
 
     for (auto controller : controllersName) {
         
-        ros::NodeHandle nh ("/rosee_gazebo_plugin/" + robotName + "/" + controller + "/pid") ;
+        ros::NodeHandle nh ("/rosee_gazebo_plugins/params/" + controller + "/pid") ;
         std::shared_ptr <dynamic_reconfigure::Server<rosee_gazebo_plugins::pidConfig> > dr_srv_ptr = 
            std::make_shared <dynamic_reconfigure::Server<rosee_gazebo_plugins::pidConfig>> ( nh ) ;
         
         dynamic_reconfigure::Server<rosee_gazebo_plugins::pidConfig>::CallbackType cb;
-        cb = boost::bind(&ROSEE::DynReconfigure::pidCfgClbk, _1, _2, "/rosee_gazebo_plugin/" + robotName + "/" + controller + "/pid");
+        cb = boost::bind(&ROSEE::DynReconfigure::pidCfgClbk, _1, _2, 
+                         "/rosee_gazebo_plugins/params/" + controller + "/pid");
         dr_srv_ptr->setCallback(cb);
         drVector.push_back ( dr_srv_ptr );
 
@@ -53,34 +55,29 @@ int main(int argc, char **argv) {
     
 }
 
-bool ROSEE::DynReconfigure::parseControllersName (std::string robotName, std::vector<std::string> &controllersName) {
+bool ROSEE::DynReconfigure::parseControllersNames (ros::NodeHandle* rosNode, 
+                                                   std::vector<std::string> &controllersName) {
     
-    //TODO USE THE ORIGINAL UTILS FROM ROSEE or not?
-    // Not! because it returns the path of ros_end_effector package, not the gazebo package
-    boost::filesystem::path path(__FILE__);
-    path.remove_filename();
-    std::string dirPath = path.string() + "/../" + "configs/" + robotName + "_control.yaml" ;
-    std::ifstream ifile ( dirPath );
-    if (! ifile) {
-        ROS_ERROR_STREAM ( "[ERROR gazebo plugin]: file " << dirPath << " not found. " );
+    std::string configFileName;
+    
+    if (! rosNode->getParam("/ros_ee_config_path", configFileName) ) {
+        ROS_ERROR_STREAM ("[ERROR Dynamic Reconfigure]: parameter '/ros_ee_config_path'" <<
+            " not loaded on parameter server");
         return false;
     }
     
-    YAML::Node node = YAML::LoadFile(dirPath);
+    YAML::Node node = YAML::LoadFile(configFileName);
     
-    // this for is necessary to take the first line of yaml file (the robot name). In truth there is only a name
-    // so this loop is done only once
-    for (const auto& kv : node) {
-        
-        if (robotName.compare (kv.first.as<std::string>()) != 0 ) {
-            ROS_ERROR_STREAM ( "'" << robotName << "' taken as argument, does not match the robot name found in" << 
-                " configs/" + robotName + "_control.yaml that is: '" <<  kv.first.as<std::string>() << "'");
+    if ( ! node["rosee_gazebo_plugins_args"] ) {
+        ROS_ERROR_STREAM ("[ERROR Dynamic Reconfigure]: Not found the node 'rosee_gazebo_plugins_args' not found in the config file '" << configFileName << "' , or the file is missing" );
             return false;
-        }
-        for (const auto & controller: kv.second ) {
-            controllersName.push_back ( controller.first.as<std::string>() ) ;
-        }
     }
+    
+    for (const auto & controller : node["rosee_gazebo_plugins_args"] ) {
+        
+        controllersName.push_back ( controller.first.as<std::string>() ) ;
+    }
+    
     return true;
 }
 

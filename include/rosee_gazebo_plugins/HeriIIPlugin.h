@@ -1,5 +1,5 @@
-#ifndef _ROSEE_PLUGIN_HH_
-#define _ROSEE_PLUGIN_HH_
+#ifndef _HERIII_PLUGIN_HH_
+#define _HERIII_PLUGIN_HH_
 
 #include <thread>
 #include <ros/ros.h>
@@ -15,6 +15,9 @@
 #include <yaml-cpp/yaml.h>
 //to find relative path for the config files
 #include <boost/filesystem/path.hpp>
+
+#include <rosee_gazebo_plugins/JointDeltAngle.h>
+
 namespace gazebo
 {
     /**
@@ -25,10 +28,10 @@ namespace gazebo
     * @todo Check namespaces for published topics and used ros parameters
     * 
     */
-    class RoseePlugin : public ModelPlugin {
+    class HeriIIPlugin : public ModelPlugin {
     
     public: 
-        RoseePlugin() {}
+        HeriIIPlugin() {}
 
         /// \brief The load function is called by Gazebo when the plugin is
         /// inserted into simulation
@@ -51,7 +54,7 @@ namespace gazebo
          * @return false if some errors happened
          * @warning the yaml file must be located in configs folder and be named "ROBOTNAME_control.yaml"
          */
-        bool parseControllerConfig();
+        bool parseMotorsConfig();
         
         /**
          * @brief Set the pid values, which are taken from the controller yaml config file (parsed in \ref parseControllerConfig )
@@ -71,6 +74,8 @@ namespace gazebo
          * (defined in the yaml file _control, parsed inf \ref parseControllerConfig, the references can be positions or velocities, for now
          */
         void setReference ( );
+        
+        bool moveCoupledJoints(std::string motorName, double motorRef);
         
         /**
          * @brief PID gains for pos and vel (for now) can be modifed during the execution, updating the parameters on ros server.
@@ -105,25 +110,32 @@ namespace gazebo
         /**
          * @brief struct to store the infos about controller for a joint.
          */
-        struct JointControllerConfig {
-            std::string name;
-            std::string type;
-            std::string jointName;
-            double p;
+        struct MotorConfig {
+            std::string motorName;
+            const std::vector<std::string> coupledJointNames; //name of joints of the finger
+            double p; //pid gains
             double i;
             double d;
+            double K_t; // Torque coefficent of the motor [Nm/A]
+            double r;   // Radius of the pulley [m]
+            double R_M; // Eletrical terminal resistance of the motor [ohm]
+            double G_r;  // Ratio of the gearbox of the motor [adimensional]
+            double E_e; // Efficency of gearhead, 0.9 is the max efficency of the motor [adimensional]
         } ;
         
         /**
          * @brief the map with as key the joint name and as value a \ref JointControllerConfig which contains controller infos
          */
-        std::map <std::string, JointControllerConfig> jointControllersConfigsMap;
+        std::map <std::string, MotorConfig> motorsConfigMap;
+        
+        JointDeltAngle jointDeltAngle;
+
         
         
   };
 
   // Tell Gazebo about this plugin, so that Gazebo can call Load on this plugin.
-  GZ_REGISTER_MODEL_PLUGIN(RoseePlugin)
+  GZ_REGISTER_MODEL_PLUGIN(HeriIIPlugin)
 }
 
-#endif // _ROSEE_PLUGIN_HH_
+#endif // _HERIII_PLUGIN_HH_

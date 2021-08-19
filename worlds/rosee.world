@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <sdf version="1.4">
   <world name="rosee_world">
+    <plugin name='xbot2_gz_clock' filename='libxbot2_gz_clock.so'/>
     <include>
       <uri>model://ground_plane</uri>
     </include>
