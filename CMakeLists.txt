@@ -9,6 +9,7 @@ project(rosee_gazebo_plugins)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
     roscpp
+    rospy
     gazebo_ros
     std_msgs
     dynamic_reconfigure
