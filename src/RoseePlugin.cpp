@@ -36,9 +36,6 @@ void gazebo::RoseePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
         return;
     }
 
-
-
-
     // Create a named topic, and subscribe to it.
     //TODO take namespace from somewhere
     ros::SubscribeOptions so =

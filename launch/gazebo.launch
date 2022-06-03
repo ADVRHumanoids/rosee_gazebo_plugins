@@ -3,10 +3,12 @@
 	
     <arg name="hand_name"/>
 	  
+    <param name="/ros_ee_config_path" value="$(find end_effector)/configs/$(arg hand_name).yaml"/>
+
     <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(find rosee_gazebo_plugins)/worlds/rosee.world"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
-        <arg name="paused" value="true"/>
+        <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="true"/>
         <arg name="recording" value="false"/>
