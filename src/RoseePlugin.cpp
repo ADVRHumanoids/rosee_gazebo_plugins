@@ -138,11 +138,11 @@ bool gazebo::RoseePlugin::setPIDs() {
         // Apply the controller to the joint.
         if ( it->second.type.compare ("JointPositionController") == 0) {
             this->model->GetJointController()->SetPositionPID(
-                joint->GetScopedName(), common::PID(it->second.p, it->second.d, it->second.i));
+                joint->GetScopedName(), common::PID(it->second.p, it->second.i, it->second.d));
             
         } else if ( it->second.type.compare ("JointVelocityController") == 0) {
             this->model->GetJointController()->SetVelocityPID(
-                joint->GetScopedName(), common::PID(it->second.p, it->second.d, it->second.i));
+                joint->GetScopedName(), common::PID(it->second.p, it->second.i, it->second.d));
         } 
         else if ( it->second.type.compare ("JointEffortController") == 0 ) {
             ROS_ERROR_STREAM ( "JointEffortController still not implememnted" );
